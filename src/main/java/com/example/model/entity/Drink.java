@@ -1,6 +1,9 @@
 package com.example.model.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,4 +23,8 @@ public class Drink extends BaseEntity {
     private Float price;
     private Boolean iceCubes;
     private Boolean lemon;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    private Order order;
 }

@@ -1,5 +1,6 @@
 package com.example.model.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -21,7 +22,8 @@ public class Dessert extends BaseEntity {
     private String name;
     private Integer portionWeight;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "lunch_id", referencedColumnName = "id")
     private Lunch lunch;
 
 }

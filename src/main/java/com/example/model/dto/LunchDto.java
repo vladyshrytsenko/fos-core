@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,10 @@ public class LunchDto {
     private Long cuisineId;
     private Long mealId;
     private Long dessertId;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private boolean isDeleted;
+    private LocalDateTime deletedAt;
 
     public static LunchDto toDto(Lunch entity) {
         return LunchDto.builder()
@@ -28,6 +33,10 @@ public class LunchDto {
             .cuisineId(entity.getCuisine().getId())
             .mealId(entity.getMeal().getId())
             .dessertId(entity.getDessert().getId())
+            .createdAt(entity.getCreatedAt())
+            .updatedAt(entity.getUpdatedAt())
+            .isDeleted(entity.isDeleted())
+            .deletedAt(entity.getDeletedAt())
             .build();
     }
 
@@ -36,6 +45,10 @@ public class LunchDto {
             .id(dto.getId())
             .name(dto.getName())
             .price(dto.getPrice())
+            .createdAt(dto.getCreatedAt())
+            .updatedAt(dto.getUpdatedAt())
+            .isDeleted(dto.isDeleted())
+            .deletedAt(dto.getDeletedAt())
             .build();
     }
 

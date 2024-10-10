@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.model.dto.MealDto;
 import com.example.model.entity.Meal;
+import com.example.model.request.MealRequest;
 import com.example.service.MealService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,9 +29,9 @@ public class MealController {
 
     @PostMapping
     public ResponseEntity<MealDto> create(
-        @RequestBody MealDto mealDto
+        @RequestBody MealRequest request
     ) {
-        MealDto created = this.mealService.create(mealDto);
+        MealDto created = this.mealService.create(request);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
@@ -50,9 +51,9 @@ public class MealController {
     @PutMapping("/{id}")
     public ResponseEntity<MealDto> updateById(
         @PathVariable Long id,
-        @RequestBody MealDto mealDto
+        @RequestBody MealRequest request
     ) {
-        MealDto updated = this.mealService.updateById(id, mealDto);
+        MealDto updated = this.mealService.updateById(id, request);
         return new ResponseEntity<>(updated, HttpStatus.CREATED);
     }
 

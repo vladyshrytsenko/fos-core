@@ -2,6 +2,7 @@ package com.example.model.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,12 +22,17 @@ public class Lunch extends BaseEntity {
     private String name;
     private Float price;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "cuisine_id", referencedColumnName = "id")
     private Cuisine cuisine;
 
-    @OneToOne
+    @OneToOne(mappedBy = "lunch")
     private Meal meal;
 
-    @OneToOne
+    @OneToOne(mappedBy = "lunch")
     private Dessert dessert;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id", referencedColumnName = "id")
+    private Order order;
 }

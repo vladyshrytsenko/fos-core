@@ -1,6 +1,7 @@
 package com.example.model.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,5 +18,8 @@ import org.hibernate.annotations.Where;
 public class Cuisine extends BaseEntity {
 
     private String name;
+
+    @OneToOne(mappedBy = "cuisine")
+    private Lunch lunch;
 
 }

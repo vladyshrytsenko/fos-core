@@ -20,9 +20,9 @@ public class Order extends BaseEntity {
 
     private Float totalPrice;
 
-    @OneToOne
+    @OneToOne(mappedBy = "order")
     private Lunch lunch;
 
-    @OneToOne
+    @OneToOne(mappedBy = "order")
     private Drink drink;
 }

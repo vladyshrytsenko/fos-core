@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,10 @@ public class DrinkDto {
     private Float price;
     private Boolean iceCubes;
     private Boolean lemon;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private boolean isDeleted;
+    private LocalDateTime deletedAt;
 
     public static DrinkDto toDto(Drink entity) {
         return DrinkDto.builder()
@@ -26,6 +31,10 @@ public class DrinkDto {
             .price(entity.getPrice())
             .iceCubes(entity.getIceCubes())
             .lemon(entity.getLemon())
+            .createdAt(entity.getCreatedAt())
+            .updatedAt(entity.getUpdatedAt())
+            .isDeleted(entity.isDeleted())
+            .deletedAt(entity.getDeletedAt())
             .build();
     }
 
@@ -36,6 +45,10 @@ public class DrinkDto {
             .price(dto.getPrice())
             .iceCubes(dto.getIceCubes())
             .lemon(dto.getLemon())
+            .createdAt(dto.getCreatedAt())
+            .updatedAt(dto.getUpdatedAt())
+            .isDeleted(dto.isDeleted())
+            .deletedAt(dto.getDeletedAt())
             .build();
     }
 

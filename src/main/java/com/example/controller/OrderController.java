@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.model.dto.OrderDto;
 import com.example.model.entity.Order;
+import com.example.model.request.OrderRequest;
 import com.example.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,9 +29,9 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderDto> create(
-        @RequestBody OrderDto orderDto
+        @RequestBody OrderRequest request
     ) {
-        OrderDto created = this.orderService.create(orderDto);
+        OrderDto created = this.orderService.create(request);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
@@ -50,9 +51,9 @@ public class OrderController {
     @PutMapping("/{id}")
     public ResponseEntity<OrderDto> updateById(
         @PathVariable Long id,
-        @RequestBody OrderDto orderDto
+        @RequestBody OrderRequest request
     ) {
-        OrderDto updated = this.orderService.updateById(id, orderDto);
+        OrderDto updated = this.orderService.updateById(id, request);
         return new ResponseEntity<>(updated, HttpStatus.CREATED);
     }
 
