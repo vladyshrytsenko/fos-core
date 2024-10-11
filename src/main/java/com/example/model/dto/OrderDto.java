@@ -1,7 +1,8 @@
 package com.example.model.dto;
 
+import com.example.model.entity.Dessert;
 import com.example.model.entity.Drink;
-import com.example.model.entity.Lunch;
+import com.example.model.entity.Meal;
 import com.example.model.entity.Order;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,8 @@ public class OrderDto {
 
     private Long id;
     private Float totalPrice;
-    private LunchDto lunch;
+    private DessertDto dessert;
+    private MealDto meal;
     private DrinkDto drink;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -26,13 +28,15 @@ public class OrderDto {
     private LocalDateTime deletedAt;
 
     public static OrderDto toDto(Order entity) {
-        LunchDto lunchDto = LunchDto.toDto(entity.getLunch());
+        DessertDto dessertDto = DessertDto.toDto(entity.getDessert());
+        MealDto mealDto = MealDto.toDto(entity.getMeal());
         DrinkDto drinkDto = DrinkDto.toDto(entity.getDrink());
 
         return OrderDto.builder()
             .id(entity.getId())
             .totalPrice(entity.getTotalPrice())
-            .lunch(lunchDto)
+            .dessert(dessertDto)
+            .meal(mealDto)
             .drink(drinkDto)
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
@@ -42,13 +46,15 @@ public class OrderDto {
     }
 
     public static Order toEntity(OrderDto dto) {
-        Lunch lunch = LunchDto.toEntity(dto.getLunch());
+        Dessert dessert = DessertDto.toEntity(dto.getDessert());
+        Meal meal = MealDto.toEntity(dto.getMeal());
         Drink drink = DrinkDto.toEntity(dto.getDrink());
 
         return Order.builder()
             .id(dto.getId())
             .totalPrice(dto.getTotalPrice())
-            .lunch(lunch)
+            .dessert(dessert)
+            .meal(meal)
             .drink(drink)
             .createdAt(dto.getCreatedAt())
             .updatedAt(dto.getUpdatedAt())

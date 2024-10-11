@@ -6,7 +6,7 @@ import com.example.model.request.DessertRequest;
 import com.example.service.DessertService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/desserts")
@@ -36,7 +38,11 @@ public class DessertController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DessertDto>> findAll(Pageable pageable) {
+    public ResponseEntity<List<DessertDto>> findAll(
+        @RequestParam Optional<Integer> number,
+        @RequestParam Optional<Integer> size) {
+
+        PageRequest pageable = PageRequest.of(number.orElse(0), size.orElse(10));
         Page<Dessert> page = this.dessertService.findAll(pageable);
         List<DessertDto> list = DessertDto.toDtoList(page.getContent());
         return new ResponseEntity<>(list, HttpStatus.OK);
@@ -54,7 +60,7 @@ public class DessertController {
         @RequestBody DessertRequest request
     ) {
         DessertDto updated = this.dessertService.updateById(id, request);
-        return new ResponseEntity<>(updated, HttpStatus.CREATED);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

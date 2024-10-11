@@ -6,19 +6,20 @@ import com.example.model.request.OrderRequest;
 import com.example.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -36,7 +37,11 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderDto>> findAll(Pageable pageable) {
+    public ResponseEntity<List<OrderDto>> findAll(
+        @RequestParam Optional<Integer> number,
+        @RequestParam Optional<Integer> size) {
+
+        PageRequest pageable = PageRequest.of(number.orElse(0), size.orElse(10));
         Page<Order> page = this.orderService.findAll(pageable);
         List<OrderDto> list = OrderDto.toDtoList(page.getContent());
         return new ResponseEntity<>(list, HttpStatus.OK);
@@ -46,15 +51,6 @@ public class OrderController {
     public ResponseEntity<OrderDto> getById(@PathVariable Long id) {
         OrderDto found = this.orderService.getById(id);
         return new ResponseEntity<>(found, HttpStatus.OK);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<OrderDto> updateById(
-        @PathVariable Long id,
-        @RequestBody OrderRequest request
-    ) {
-        OrderDto updated = this.orderService.updateById(id, request);
-        return new ResponseEntity<>(updated, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")

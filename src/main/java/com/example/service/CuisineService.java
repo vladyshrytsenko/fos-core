@@ -36,11 +36,9 @@ public class CuisineService {
         return toDto(found);
     }
 
-    public CuisineDto getByName(String name) {
-        Cuisine found = this.cuisineRepository.findByName(name)
+    public Cuisine getByName(String name) {
+        return this.cuisineRepository.findByName(name)
             .orElseThrow(() -> new EntityNotFoundException(Cuisine.class));
-
-        return CuisineDto.toDto(found);
     }
 
     public Page<Cuisine> findAll(Pageable pageable) {

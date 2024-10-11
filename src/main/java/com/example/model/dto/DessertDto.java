@@ -16,8 +16,9 @@ public class DessertDto {
 
     private Long id;
     private String name;
+    private Float price;
     private Integer portionWeight;
-    private Long lunchId;
+    private Long cuisineId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isDeleted;
@@ -27,6 +28,7 @@ public class DessertDto {
         DessertDto dessertDto = DessertDto.builder()
             .id(entity.getId())
             .name(entity.getName())
+            .price(entity.getPrice())
             .portionWeight(entity.getPortionWeight())
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
@@ -34,8 +36,8 @@ public class DessertDto {
             .deletedAt(entity.getDeletedAt())
             .build();
 
-        if (entity.getLunch() != null) {
-            dessertDto.setLunchId(entity.getLunch().getId());
+        if (entity.getCuisine() != null) {
+            dessertDto.setCuisineId(entity.getCuisine().getId());
         }
 
         return dessertDto;
@@ -45,6 +47,7 @@ public class DessertDto {
         return Dessert.builder()
             .id(dto.getId())
             .name(dto.getName())
+            .price(dto.getPrice())
             .portionWeight(dto.getPortionWeight())
             .createdAt(dto.getCreatedAt())
             .updatedAt(dto.getUpdatedAt())

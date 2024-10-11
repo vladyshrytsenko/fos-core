@@ -34,11 +34,9 @@ public class DrinkService {
         return DrinkDto.toDto(found);
     }
 
-    public DrinkDto getByName(String name) {
-        Drink found = this.drinkRepository.findByName(name)
+    public Drink getByName(String name) {
+        return this.drinkRepository.findByName(name)
             .orElseThrow(() -> new EntityNotFoundException(Drink.class));
-
-        return DrinkDto.toDto(found);
     }
 
     public Page<Drink> findAll(Pageable pageable) {

@@ -2,13 +2,11 @@ package com.example.service;
 
 import com.example.exception.EntityNotFoundException;
 import com.example.model.dto.DessertDto;
-import com.example.model.dto.LunchDto;
+import com.example.model.entity.Cuisine;
 import com.example.model.entity.Dessert;
-import com.example.model.entity.Lunch;
 import com.example.model.request.DessertRequest;
 import com.example.repository.DessertRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,24 +22,18 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class DessertService {
 
     private final DessertRepository dessertRepository;
-//    private LunchService lunchService;
-
-//    @Autowired
-//    public void setLunchService(LunchService lunchService) {
-//        this.lunchService = lunchService;
-//    }
+    private final CuisineService cuisineService;
 
     @Transactional
     public DessertDto create(DessertRequest request) {
         Dessert entity = DessertRequest.toEntity(request);
 
-//        if (isBlank(request.getLunchName())) {
-//            throw new RuntimeException("Lunch should not be blank");
-//        }
+        if (isBlank(request.getCuisineName())) {
+            throw new RuntimeException("Cuisine should not be blank");
+        }
 
-//        LunchDto lunchByName = lunchService.getByName(request.getName());
-//        Lunch lunch = LunchDto.toEntity(lunchByName);
-//        entity.setLunch(lunch);
+        Cuisine cuisineByName = this.cuisineService.getByName(request.getCuisineName());
+        entity.setCuisine(cuisineByName);
 
         entity.setCreatedAt(LocalDateTime.now());
         Dessert saved = this.dessertRepository.save(entity);
@@ -55,11 +47,9 @@ public class DessertService {
         return DessertDto.toDto(found);
     }
 
-    public DessertDto getByName(String name) {
-        Dessert found = this.dessertRepository.findByName(name)
+    public Dessert getByName(String name) {
+        return this.dessertRepository.findByName(name)
             .orElseThrow(() -> new EntityNotFoundException(Dessert.class));
-
-        return DessertDto.toDto(found);
     }
 
     public Page<Dessert> findAll(Pageable pageable) {

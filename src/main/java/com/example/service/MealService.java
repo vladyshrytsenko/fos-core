@@ -1,15 +1,13 @@
 package com.example.service;
 
 import com.example.exception.EntityNotFoundException;
-import com.example.model.dto.LunchDto;
 import com.example.model.dto.MealDto;
-import com.example.model.entity.Lunch;
+import com.example.model.entity.Cuisine;
 import com.example.model.entity.Meal;
 import com.example.model.request.MealRequest;
 import com.example.repository.MealRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,25 +22,20 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class MealService {
 
     private final MealRepository mealRepository;
-//    private LunchService lunchService;
-
-//    @Autowired
-//    public void setLunchService(LunchService lunchService) {
-//        this.lunchService = lunchService;
-//    }
+    private final CuisineService cuisineService;
 
     @Transactional
     public MealDto create(MealRequest request) {
         Meal entity = MealRequest.toEntity(request);
 
-//        if (isBlank(request.getLunchName())) {
-//            throw new RuntimeException("Lunch should not be blank");
-//        }
+        if (isBlank(request.getCuisineName())) {
+            throw new RuntimeException("Cuisine should not be blank");
+        }
 
-//        LunchDto lunchByName = lunchService.getByName(request.getName());
-//        Lunch lunch = LunchDto.toEntity(lunchByName);
-//        entity.setLunch(lunch);
+        Cuisine cuisineByName = this.cuisineService.getByName(request.getCuisineName());
+        entity.setCuisine(cuisineByName);
 
+        entity.setCreatedAt(LocalDateTime.now());
         Meal saved = this.mealRepository.save(entity);
         return MealDto.toDto(saved);
     }
@@ -54,11 +47,9 @@ public class MealService {
         return MealDto.toDto(found);
     }
 
-    public MealDto getByName(String name) {
-        Meal found = this.mealRepository.findByName(name)
+    public Meal getByName(String name) {
+        return this.mealRepository.findByName(name)
             .orElseThrow(() -> new EntityNotFoundException(Meal.class));
-
-        return MealDto.toDto(found);
     }
 
     public Page<Meal> findAll(Pageable pageable) {

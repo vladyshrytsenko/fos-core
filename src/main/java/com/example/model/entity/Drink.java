@@ -1,11 +1,10 @@
 package com.example.model.entity;
 
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
@@ -14,17 +13,17 @@ import org.hibernate.annotations.Where;
 @Entity(name = "drinks")
 @Getter @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @SuperBuilder
-@SQLDelete(sql = "update drinks set isDeleted = true and deletedAt = now() where id = ?")
-@Where(clause = "isDeleted = false")
+@SQLDelete(sql = "update drinks set is_deleted = true, deleted_at = current_timestamp where id = ?")
+@Where(clause = "is_deleted = false")
 public class Drink extends BaseEntity {
 
     private String name;
     private Float price;
-    private Boolean iceCubes;
-    private Boolean lemon;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
-    private Order order;
+    @Column(name = "ice_cubes")
+    private Boolean iceCubes;
+
+    private Boolean lemon;
 }

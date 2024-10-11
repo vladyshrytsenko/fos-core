@@ -1,22 +1,17 @@
 package com.example.model.request;
 
-import com.example.model.entity.Order;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class OrderRequest {
 
-    private Float totalPrice;
-    private String lunchName;
+    private String mealName;
+    private String dessertName;
     private String drinkName;
-
-//    public static Order toEntity(OrderRequest request) {
-//        return Order.builder()
-//            .totalPrice(request.getTotalPrice())
-//            .build();
-//    }
 }
