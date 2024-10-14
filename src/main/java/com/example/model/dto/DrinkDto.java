@@ -17,8 +17,6 @@ public class DrinkDto {
     private Long id;
     private String name;
     private Float price;
-    private Boolean iceCubes;
-    private Boolean lemon;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isDeleted;
@@ -29,8 +27,6 @@ public class DrinkDto {
             .id(entity.getId())
             .name(entity.getName())
             .price(entity.getPrice())
-            .iceCubes(entity.getIceCubes())
-            .lemon(entity.getLemon())
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
             .isDeleted(entity.isDeleted())
@@ -43,8 +39,6 @@ public class DrinkDto {
             .id(dto.getId())
             .name(dto.getName())
             .price(dto.getPrice())
-            .iceCubes(dto.getIceCubes())
-            .lemon(dto.getLemon())
             .createdAt(dto.getCreatedAt())
             .updatedAt(dto.getUpdatedAt())
             .isDeleted(dto.isDeleted())

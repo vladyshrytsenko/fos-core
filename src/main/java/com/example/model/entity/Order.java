@@ -36,4 +36,9 @@ public class Order extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "drink_id", referencedColumnName = "id")
     private Drink drink;
+
+    @Column(name = "ice_cubes")
+    private Boolean iceCubes;
+
+    private Boolean lemon;
 }

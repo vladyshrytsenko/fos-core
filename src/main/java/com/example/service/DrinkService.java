@@ -52,9 +52,6 @@ public class DrinkService {
         if (drinkExists.getPrice() != null) {
             byId.setPrice(drinkExists.getPrice());
         }
-        if (drinkExists.getIceCubes() != null) {
-            byId.setIceCubes(drinkExists.getIceCubes());
-        }
         byId.setUpdatedAt(LocalDateTime.now());
 
         Drink entity = DrinkDto.toEntity(byId);

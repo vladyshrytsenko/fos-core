@@ -29,7 +29,7 @@ public class OrderService {
 
     @Transactional
     public OrderDto create(OrderRequest request) {
-        Order entity = Order.builder().build();
+        Order entity = OrderRequest.toEntity(request);
 
         if (isBlank(request.getMealName()) && isBlank(request.getDessertName())) {
             throw new RuntimeException("Lunch should not be blank");

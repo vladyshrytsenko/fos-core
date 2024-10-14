@@ -1,6 +1,5 @@
 package com.example.model.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,9 +20,4 @@ public class Drink extends BaseEntity {
 
     private String name;
     private Float price;
-
-    @Column(name = "ice_cubes")
-    private Boolean iceCubes;
-
-    private Boolean lemon;
 }

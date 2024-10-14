@@ -22,6 +22,8 @@ public class OrderDto {
     private DessertDto dessert;
     private MealDto meal;
     private DrinkDto drink;
+    private Boolean iceCubes;
+    private Boolean lemon;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isDeleted;
@@ -38,6 +40,8 @@ public class OrderDto {
             .dessert(dessertDto)
             .meal(mealDto)
             .drink(drinkDto)
+            .iceCubes(entity.getIceCubes())
+            .lemon(entity.getLemon())
             .createdAt(entity.getCreatedAt())
             .updatedAt(entity.getUpdatedAt())
             .isDeleted(entity.isDeleted())
@@ -56,6 +60,8 @@ public class OrderDto {
             .dessert(dessert)
             .meal(meal)
             .drink(drink)
+            .iceCubes(dto.getIceCubes())
+            .lemon(dto.getLemon())
             .createdAt(dto.getCreatedAt())
             .updatedAt(dto.getUpdatedAt())
             .isDeleted(dto.isDeleted())
