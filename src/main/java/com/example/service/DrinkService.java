@@ -44,7 +44,8 @@ public class DrinkService {
     }
 
     public DrinkDto updateById(Long id, DrinkRequest drinkExists) {
-        DrinkDto byId = getById(id);
+        Drink byId = this.drinkRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(Drink.class));
 
         if (StringUtils.isNotBlank(drinkExists.getName())) {
             byId.setName(drinkExists.getName());
@@ -54,8 +55,7 @@ public class DrinkService {
         }
         byId.setUpdatedAt(LocalDateTime.now());
 
-        Drink entity = DrinkDto.toEntity(byId);
-        Drink updated = drinkRepository.save(entity);
+        Drink updated = drinkRepository.save(byId);
         return DrinkDto.toDto(updated);
     }
 

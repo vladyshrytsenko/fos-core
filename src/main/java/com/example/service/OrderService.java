@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Service
 @RequiredArgsConstructor
@@ -35,18 +36,29 @@ public class OrderService {
             throw new RuntimeException("Lunch should not be blank");
         }
 
-        Meal mealByName = this.mealService.getByName(request.getMealName());
-        entity.setMeal(mealByName);
+        float totalPrice = 0f;
+        if (isNotBlank(request.getMealName())) {
+            Meal mealByName = this.mealService.getByName(request.getMealName());
+            entity.setMeal(mealByName);
 
-        Dessert dessertByName = this.dessertService.getByName(request.getDessertName());
-        entity.setDessert(dessertByName);
+            totalPrice += mealByName.getPrice();
+        }
 
-        Drink drinkByName = this.drinkService.getByName(request.getDrinkName());
-        entity.setDrink(drinkByName);
+        if (isNotBlank(request.getDessertName())) {
+            Dessert dessertByName = this.dessertService.getByName(request.getDessertName());
+            entity.setDessert(dessertByName);
 
-        float totalPrice = drinkByName.getPrice() + mealByName.getPrice() + dessertByName.getPrice();
+            totalPrice += dessertByName.getPrice();
+        }
+
+        if (isNotBlank(request.getDrinkName())) {
+            Drink drinkByName = this.drinkService.getByName(request.getDrinkName());
+            entity.setDrink(drinkByName);
+
+            totalPrice += drinkByName.getPrice();
+        }
+
         entity.setTotalPrice(totalPrice);
-
         entity.setCreatedAt(LocalDateTime.now());
         Order saved = this.orderRepository.save(entity);
         return OrderDto.toDto(saved);

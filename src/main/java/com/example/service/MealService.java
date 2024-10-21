@@ -57,7 +57,8 @@ public class MealService {
     }
 
     public MealDto updateById(Long id, MealRequest mealExists) {
-        MealDto byId = getById(id);
+        Meal byId = this.mealRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(Meal.class));
 
         if (StringUtils.isNotBlank(mealExists.getName())) {
             byId.setName(mealExists.getName());
@@ -65,10 +66,12 @@ public class MealService {
         if (mealExists.getPortionWeight() != null) {
             byId.setPortionWeight(mealExists.getPortionWeight());
         }
+        if (mealExists.getPrice() != null) {
+            byId.setPrice(mealExists.getPrice());
+        }
         byId.setUpdatedAt(LocalDateTime.now());
 
-        Meal entity = MealDto.toEntity(byId);
-        Meal updated = mealRepository.save(entity);
+        Meal updated = mealRepository.save(byId);
         return MealDto.toDto(updated);
     }
 

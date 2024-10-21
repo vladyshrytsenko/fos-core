@@ -69,4 +69,3 @@ public class DrinkController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
-

@@ -57,7 +57,8 @@ public class DessertService {
     }
 
     public DessertDto updateById(Long id, DessertRequest dessertExists) {
-        DessertDto byId = getById(id);
+        Dessert byId = this.dessertRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException(Dessert.class));
 
         if (isNotBlank(dessertExists.getName())) {
             byId.setName(dessertExists.getName());
@@ -65,10 +66,12 @@ public class DessertService {
         if (dessertExists.getPortionWeight() != null) {
             byId.setPortionWeight(dessertExists.getPortionWeight());
         }
+        if (dessertExists.getPrice() != null) {
+            byId.setPrice(dessertExists.getPrice());
+        }
         byId.setUpdatedAt(LocalDateTime.now());
 
-        Dessert entity = DessertDto.toEntity(byId);
-        Dessert updated = dessertRepository.save(entity);
+        Dessert updated = dessertRepository.save(byId);
         return DessertDto.toDto(updated);
     }
 
