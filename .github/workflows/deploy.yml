@@ -9,33 +9,33 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-steps:
-  - name: Checkout code
-    uses: actions/checkout@v2
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-  - name: Set up JDK
-    uses: actions/setup-java@v2
-    with:
-      java-version: '21'
-      distribution: 'adopt'
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '21'
+        distribution: 'adopt'
 
-  - name: Build with Maven
-    run: mvn clean package --file pom.xml
+    - name: Build with Maven
+      run: mvn clean package --file pom.xml
 
-  - name: Configure AWS credentials
-    uses: aws-actions/configure-aws-credentials@v1
-    with:
-      aws-access-key-id: ${{ secret.AWS_ACCESS_KEY_ID }}
-      aws-secret-access-key: ${{ secret.AWS_SECRET_ACCESS_KEY }}
-      aws-region: us-east-1
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secret.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secret.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
 
-  - name: Deploy to Elastic Beanstalk
-    run: |
-      aws elasticbeanstalk create-application-version \
-        --application your-app-name \
-        --version-label ${{ github.sha }} \
-        --source-bundle S3Bucket=your-bucket-name,S3Key=your-app.jar
-
-      aws elasticbeanstalk update-environment \
-        --environment-name your-environment-name \
-        --version-label ${{ github.sha }}
+    - name: Deploy to Elastic Beanstalk
+      run: |
+        aws elasticbeanstalk create-application-version \
+          --application your-app-name \
+          --version-label ${{ github.sha }} \
+          --source-bundle S3Bucket=your-bucket-name,S3Key=your-app.jar
+  
+        aws elasticbeanstalk update-environment \
+          --environment-name your-environment-name \
+          --version-label ${{ github.sha }}
