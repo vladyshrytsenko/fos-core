@@ -13,6 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up working directory
+        run: cd /home/runner/work/food-ordering-system/food-ordering-system
+
       - name: Set up JDK 21
         uses: actions/setup-java@v2
         with:
