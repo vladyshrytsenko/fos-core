@@ -34,7 +34,7 @@ jobs:
           aws elasticbeanstalk create-application-version \
             --application food-ordering-system \
             --version-label ${{ github.sha }} \
-            --source-bundle S3Bucket=your-bucket-name,S3Key=food-ordering-system-0.0.1-SNAPSHOT.jar
+            --source-bundle S3Bucket=umelon-test-bucket,S3Key=food-ordering-system-0.0.1-SNAPSHOT.jar
     
           aws elasticbeanstalk update-environment \
             --environment-name your-environment-name \
