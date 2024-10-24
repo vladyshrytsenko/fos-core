@@ -34,12 +34,13 @@ jobs:
         run: |
           docker push 615299745224.dkr.ecr.us-east-1.amazonaws.com/food-ordering-system-app:latest
 
-      - name: Deploy to ECS
-        uses: aws-actions/ecs-deploy@v1
+      - name: Deploy to ECS using Task Definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           cluster: my-cluster
           service: my-service
           task-definition: my-task-definition
+          container-name: food-ordering-system-app
           image: 615299745224.dkr.ecr.us-east-1.amazonaws.com/food-ordering-system-app:latest
           wait-for-service-stability: true
         env:
