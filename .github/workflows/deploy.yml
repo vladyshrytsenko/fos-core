@@ -37,5 +37,5 @@ jobs:
             --source-bundle S3Bucket=umelon-test-bucket,S3Key=food-ordering-system-0.0.1-SNAPSHOT.jar
     
           aws elasticbeanstalk update-environment \
-            --environment-name your-environment-name \
+            --environment-name Food-ordering-system-env \
             --version-label ${{ github.sha }}
