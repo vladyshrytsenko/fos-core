@@ -46,7 +46,7 @@ jobs:
         with:
           cluster: my-cluster
           service: my-service
-          task-definition: my-task-definition
+          task-definition: arn:aws:ecs:us-east-1:615299745224:task-definition/my-task-definition:1
           container-name: food-ordering-system-app
           image: 615299745224.dkr.ecr.us-east-1.amazonaws.com/food-ordering-system-app:latest
           wait-for-service-stability: true
