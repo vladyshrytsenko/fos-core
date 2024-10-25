@@ -50,8 +50,8 @@ jobs:
           cluster: my-cluster
           service: my-service
           task-definition: my-task-definition.json
-          container-name: food-ordering-system-app
-          image: 615299745224.dkr.ecr.us-east-1.amazonaws.com/food-ordering-system-app:latest
+#          container-name: food-ordering-system-app
+#          image: 615299745224.dkr.ecr.us-east-1.amazonaws.com/food-ordering-system-app:latest
           wait-for-service-stability: true
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
