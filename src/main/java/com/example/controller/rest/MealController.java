@@ -1,4 +1,4 @@
-package com.example.controller;
+package com.example.controller.rest;
 
 import com.example.model.dto.MealDto;
 import com.example.model.entity.Meal;

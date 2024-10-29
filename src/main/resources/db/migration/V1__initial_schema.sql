@@ -50,3 +50,9 @@ create table meals(
     is_deleted boolean default false,
     foreign key (cuisine_id) references cuisines(id)
 );
+
+CREATE TABLE payments (
+    id UUID PRIMARY KEY,
+    order_id BIGINT,
+    status VARCHAR(20) NOT NULL
+);

@@ -1,9 +1,9 @@
-package com.example.controller;
+package com.example.controller.rest;
 
-import com.example.model.dto.CuisineDto;
-import com.example.model.entity.Cuisine;
-import com.example.model.request.CuisineRequest;
-import com.example.service.CuisineService;
+import com.example.model.dto.DessertDto;
+import com.example.model.entity.Dessert;
+import com.example.model.request.DessertRequest;
+import com.example.service.DessertService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,49 +23,49 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/cuisines")
+@RequestMapping("/api/desserts")
 @RequiredArgsConstructor
-public class CuisineController {
+public class DessertController {
 
-    private final CuisineService cuisineService;
+    private final DessertService dessertService;
 
     @PostMapping
-    public ResponseEntity<CuisineDto> create(
-        @RequestBody CuisineRequest request
+    public ResponseEntity<DessertDto> create(
+        @RequestBody DessertRequest request
     ) {
-        CuisineDto created = this.cuisineService.create(request);
+        DessertDto created = this.dessertService.create(request);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<CuisineDto>> findAll(
+    public ResponseEntity<List<DessertDto>> findAll(
         @RequestParam Optional<Integer> number,
         @RequestParam Optional<Integer> size) {
 
         PageRequest pageable = PageRequest.of(number.orElse(0), size.orElse(10));
-        Page<Cuisine> page = this.cuisineService.findAll(pageable);
-        List<CuisineDto> list = CuisineDto.toDtoList(page.getContent());
+        Page<Dessert> page = this.dessertService.findAll(pageable);
+        List<DessertDto> list = DessertDto.toDtoList(page.getContent());
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CuisineDto> getById(@PathVariable Long id) {
-        CuisineDto found = this.cuisineService.getById(id);
+    public ResponseEntity<DessertDto> getById(@PathVariable Long id) {
+        DessertDto found = this.dessertService.getById(id);
         return new ResponseEntity<>(found, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CuisineDto> updateById(
+    public ResponseEntity<DessertDto> updateById(
         @PathVariable Long id,
-        @RequestBody CuisineRequest request
+        @RequestBody DessertRequest request
     ) {
-        CuisineDto updated = this.cuisineService.updateById(id, request);
+        DessertDto updated = this.dessertService.updateById(id, request);
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-        this.cuisineService.deleteById(id);
+        this.dessertService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

@@ -1,10 +1,20 @@
-package com.example.controller;
+package com.example.controller.rest;
 
 import com.example.model.dto.OrderDto;
+import com.example.model.dto.PaymentDto;
 import com.example.model.entity.Order;
+import com.example.model.enums.PaymentStatus;
+import com.example.model.request.CreatePayment;
+import com.example.model.request.CreatePaymentItem;
 import com.example.model.request.OrderRequest;
 import com.example.service.OrderService;
+import com.example.service.PaymentService;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.param.PaymentIntentCreateParams;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -18,7 +28,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -27,13 +39,51 @@ import java.util.Optional;
 public class OrderController {
 
     private final OrderService orderService;
+    private final PaymentService paymentService;
+
+    @Value("${stripe.api.secret-key}")
+    private String stripeSecretKey;
 
     @PostMapping
-    public ResponseEntity<OrderDto> create(
+    public ResponseEntity<Map<String, String>> create(
         @RequestBody OrderRequest request
     ) {
         OrderDto created = this.orderService.create(request);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+
+        PaymentDto payment = PaymentDto.builder()
+            .orderId(created.getId())
+            .status(PaymentStatus.PENDING.name())
+            .totalPrice(created.getTotalPrice())
+            .build();
+
+        PaymentDto createdPayment = this.paymentService.create(payment);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("paymentId", createdPayment.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/create-payment-intent")
+    public ResponseEntity<Map<String, String>> createPaymentIntent(
+        @RequestBody CreatePayment payment) throws StripeException {
+        Stripe.apiKey = stripeSecretKey;
+
+        Long totalAmount = 100L;
+        CreatePaymentItem[] items = payment.getItems();
+        for (var item : items) {
+            totalAmount += item.getAmount();
+        }
+
+        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+            .setAmount(totalAmount)
+            .setCurrency("usd")
+            .build();
+
+        PaymentIntent intent = PaymentIntent.create(params);
+
+        Map<String, String> responseData = new HashMap<>();
+        responseData.put("clientSecret", intent.getClientSecret());
+        return ResponseEntity.ok(responseData);
     }
 
     @GetMapping
