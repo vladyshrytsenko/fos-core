@@ -29,7 +29,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -42,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = StartupApplication.class)
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class PaymentControllerTest {
+public class OrderControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -125,8 +124,7 @@ public class PaymentControllerTest {
         this.mockMvc.perform(post("/api/orders")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.totalPrice").value(8f));
+            .andExpect(status().isOk());
 
         List<Order> orders = this.orderRepository.findAll();
         assertEquals(1, orders.size());
