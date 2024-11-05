@@ -63,29 +63,6 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/create-payment-intent")
-    public ResponseEntity<Map<String, String>> createPaymentIntent(
-        @RequestBody CreatePayment payment) throws StripeException {
-        Stripe.apiKey = stripeSecretKey;
-
-        Long totalAmount = 100L;
-        CreatePaymentItem[] items = payment.getItems();
-        for (var item : items) {
-            totalAmount += item.getAmount();
-        }
-
-        PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
-            .setAmount(totalAmount)
-            .setCurrency("usd")
-            .build();
-
-        PaymentIntent intent = PaymentIntent.create(params);
-
-        Map<String, String> responseData = new HashMap<>();
-        responseData.put("clientSecret", intent.getClientSecret());
-        return ResponseEntity.ok(responseData);
-    }
-
     @GetMapping
     public ResponseEntity<List<OrderDto>> findAll(
         @RequestParam Optional<Integer> number,
