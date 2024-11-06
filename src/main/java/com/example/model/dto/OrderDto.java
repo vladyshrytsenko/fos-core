@@ -4,6 +4,7 @@ import com.example.model.entity.Dessert;
 import com.example.model.entity.Drink;
 import com.example.model.entity.Meal;
 import com.example.model.entity.Order;
+import com.example.model.entity.Payment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,15 +25,27 @@ public class OrderDto {
     private DrinkDto drink;
     private Boolean iceCubes;
     private Boolean lemon;
+    private PaymentDto payment;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isDeleted;
     private LocalDateTime deletedAt;
 
     public static OrderDto toDto(Order entity) {
-        DessertDto dessertDto = DessertDto.toDto(entity.getDessert());
-        MealDto mealDto = MealDto.toDto(entity.getMeal());
-        DrinkDto drinkDto = DrinkDto.toDto(entity.getDrink());
+        DessertDto dessertDto = null;
+        if (entity.getDessert() != null) {
+            dessertDto = DessertDto.toDto(entity.getDessert());
+        }
+        MealDto mealDto = null;
+        if (entity.getMeal() != null) {
+            mealDto = MealDto.toDto(entity.getMeal());
+        }
+
+        DrinkDto drinkDto = null;
+        if (entity.getDrink() != null) {
+            drinkDto = DrinkDto.toDto(entity.getDrink());
+        }
+        PaymentDto paymentDto = PaymentDto.toDto(entity.getPayment());
 
         return OrderDto.builder()
             .id(entity.getId())
@@ -40,6 +53,7 @@ public class OrderDto {
             .dessert(dessertDto)
             .meal(mealDto)
             .drink(drinkDto)
+            .payment(paymentDto)
             .iceCubes(entity.getIceCubes())
             .lemon(entity.getLemon())
             .createdAt(entity.getCreatedAt())
@@ -53,6 +67,7 @@ public class OrderDto {
         Dessert dessert = DessertDto.toEntity(dto.getDessert());
         Meal meal = MealDto.toEntity(dto.getMeal());
         Drink drink = DrinkDto.toEntity(dto.getDrink());
+        Payment payment = PaymentDto.toEntity(dto.getPayment());
 
         return Order.builder()
             .id(dto.getId())
@@ -60,6 +75,7 @@ public class OrderDto {
             .dessert(dessert)
             .meal(meal)
             .drink(drink)
+            .payment(payment)
             .iceCubes(dto.getIceCubes())
             .lemon(dto.getLemon())
             .createdAt(dto.getCreatedAt())

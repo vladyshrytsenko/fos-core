@@ -12,7 +12,6 @@ import lombok.Data;
 public class PaymentDto {
 
     private String id;
-    private Long orderId;
     private Float totalPrice;
     private String status;
 
@@ -20,7 +19,6 @@ public class PaymentDto {
 
         return PaymentDto.builder()
             .id(entity.getId())
-            .orderId(entity.getOrder().getId())
             .totalPrice(entity.getTotalPrice())
             .status(entity.getStatus().name())
             .build();

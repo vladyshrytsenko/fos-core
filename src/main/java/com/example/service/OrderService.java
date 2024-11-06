@@ -2,10 +2,13 @@ package com.example.service;
 
 import com.example.exception.EntityNotFoundException;
 import com.example.model.dto.OrderDto;
+import com.example.model.dto.PaymentDto;
 import com.example.model.entity.Dessert;
 import com.example.model.entity.Drink;
 import com.example.model.entity.Meal;
 import com.example.model.entity.Order;
+import com.example.model.entity.Payment;
+import com.example.model.enums.PaymentStatus;
 import com.example.model.request.OrderRequest;
 import com.example.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +63,15 @@ public class OrderService {
 
         entity.setTotalPrice(totalPrice);
         entity.setCreatedAt(LocalDateTime.now());
+
+        PaymentDto payment = PaymentDto.builder()
+            .status(PaymentStatus.PENDING.name())
+            .totalPrice(totalPrice)
+            .build();
+
+        Payment paymentEntity = PaymentDto.toEntity(payment);
+        entity.setPayment(paymentEntity);
+
         Order saved = this.orderRepository.save(entity);
         return OrderDto.toDto(saved);
     }

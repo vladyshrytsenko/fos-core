@@ -25,17 +25,21 @@ public class Order extends BaseEntity {
     @Column(name = "total_price")
     private Float totalPrice;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "dessert_id", referencedColumnName = "id")
     private Dessert dessert;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "meal_id", referencedColumnName = "id")
     private Meal meal;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "drink_id", referencedColumnName = "id")
     private Drink drink;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "payment_id", referencedColumnName = "id")
+    private Payment payment;
 
     @Column(name = "ice_cubes")
     private Boolean iceCubes;

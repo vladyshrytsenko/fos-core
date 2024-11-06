@@ -1,36 +1,25 @@
-package com.example.controller;
+package com.example.controller.rest;
 
-import com.example.model.entity.Payment;
+import com.example.model.dto.PaymentDto;
 import com.example.service.PaymentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
-@Controller
+@RestController
+@RequestMapping("/api/payments")
 @RequiredArgsConstructor
 public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @GetMapping("/payment/{uuid}")
-    public String paymentPage(@PathVariable String uuid, Model model) {
-        Optional<Payment> paymentOptional = this.paymentService.getById(uuid);
-        if (paymentOptional.isPresent()) {
-            model.addAttribute("uuid", uuid);
-            return "checkout";
-        } else {
-            model.addAttribute("errorMessage", "Order with id: " + uuid + " not found");
-            return "payment-error";
-        }
-    }
-
-    @GetMapping("/payment/{uuid}/success")
-    public String paymentSuccessPage(@PathVariable String uuid, Model model) {
-        model.addAttribute("transactionId", uuid);
-        return "success";
+    @GetMapping("/{uuid}")
+    public ResponseEntity<PaymentDto> getPayment(@PathVariable String uuid) {
+        PaymentDto found = this.paymentService.getById(uuid);
+        return new ResponseEntity<>(found, HttpStatus.OK);
     }
 }
