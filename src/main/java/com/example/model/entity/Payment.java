@@ -14,8 +14,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity(name = "payments")
-@Getter
-@Setter
+@Getter @Setter
 @RequiredArgsConstructor
 @SuperBuilder
 public class Payment {
