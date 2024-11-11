@@ -16,7 +16,6 @@ public class PaymentDto {
     private String status;
 
     public static PaymentDto toDto(Payment entity) {
-
         return PaymentDto.builder()
             .id(entity.getId())
             .totalPrice(entity.getTotalPrice())
@@ -25,7 +24,6 @@ public class PaymentDto {
     }
 
     public static Payment toEntity(PaymentDto dto) {
-
         return Payment.builder()
             .id(dto.getId())
             .totalPrice(dto.getTotalPrice())

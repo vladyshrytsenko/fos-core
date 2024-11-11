@@ -6,6 +6,9 @@ import com.example.model.entity.User;
 import com.example.model.enums.Role;
 import com.example.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +18,19 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+
+    public UserDto getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                return this.getByUsername(username);
+            }
+        }
+        return null;
+    }
 
     public UserDto getById(Long id) {
         User user = userRepository.findById(id)
