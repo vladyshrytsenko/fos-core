@@ -6,6 +6,8 @@ import com.example.model.entity.Cuisine;
 import com.example.model.entity.Dessert;
 import com.example.model.request.DessertRequest;
 import com.example.repository.DessertRepository;
+import com.stripe.model.Price;
+import com.stripe.model.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,7 @@ public class DessertService {
 
     private final DessertRepository dessertRepository;
     private final CuisineService cuisineService;
+    private final StripeService stripeService;
 
     @Transactional
     public DessertDto create(DessertRequest request) {
@@ -37,6 +40,10 @@ public class DessertService {
 
         entity.setCreatedAt(LocalDateTime.now());
         Dessert saved = this.dessertRepository.save(entity);
+
+        Product stripeProduct = this.stripeService.createProduct(saved.getName());
+        Price stripePrice = this.stripeService.createPrice(stripeProduct.getId(), saved.getPrice());
+
         return DessertDto.toDto(saved);
     }
 

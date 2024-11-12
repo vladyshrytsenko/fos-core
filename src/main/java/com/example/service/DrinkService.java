@@ -5,6 +5,8 @@ import com.example.model.dto.DrinkDto;
 import com.example.model.entity.Drink;
 import com.example.model.request.DrinkRequest;
 import com.example.repository.DrinkRepository;
+import com.stripe.model.Price;
+import com.stripe.model.Product;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -18,12 +20,17 @@ import java.time.LocalDateTime;
 public class DrinkService {
 
     private final DrinkRepository drinkRepository;
+    private final StripeService stripeService;
 
     public DrinkDto create(DrinkRequest request) {
         Drink entity = DrinkRequest.toEntity(request);
         entity.setCreatedAt(LocalDateTime.now());
 
         Drink saved = this.drinkRepository.save(entity);
+
+        Product stripeProduct = this.stripeService.createProduct(saved.getName());
+        Price stripePrice = this.stripeService.createPrice(stripeProduct.getId(), saved.getPrice());
+
         return DrinkDto.toDto(saved);
     }
 

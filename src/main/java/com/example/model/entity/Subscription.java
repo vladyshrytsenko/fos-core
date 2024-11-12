@@ -1,6 +1,7 @@
 package com.example.model.entity;
 
 import com.example.model.enums.SubscriptionType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -31,6 +32,9 @@ public class Subscription {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(name = "customer_id")
+    private String customerId;
 
     @OneToOne
     @JoinColumn(name = "order_id", referencedColumnName = "id")

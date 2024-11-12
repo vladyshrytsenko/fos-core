@@ -1,5 +1,8 @@
 package com.example.service;
 
+import com.example.model.dto.DessertDto;
+import com.example.model.dto.DrinkDto;
+import com.example.model.dto.MealDto;
 import com.example.model.dto.OrderDto;
 import com.example.model.dto.SubscriptionDto;
 import com.example.model.dto.UserDto;
@@ -11,7 +14,6 @@ import com.example.model.request.OrderRequest;
 import com.example.model.request.SubscriptionRequest;
 import com.example.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,33 +27,56 @@ public class SubscriptionService {
     private final OrderService orderService;
     private final UserService userService;
     private final SubscriptionRepository subscriptionRepository;
-
-    @Value("${subscription.daily.cron}")
-    private String dailyCron;
-
-    @Value("${subscription.weekly.cron}")
-    private String weeklyCron;
-
-    @Value("${subscription.monthly.cron}")
-    private String monthlyCron;
+    private final StripeService stripeService;
 
     @Transactional
-    public SubscriptionDto create(Long orderId, SubscriptionRequest request) {
+    public SubscriptionDto create(SubscriptionRequest request) {
         Subscription entity = SubscriptionRequest.toEntity(request);
 
         UserDto currentUser = this.userService.getCurrentUser();
         User user = UserDto.toEntity(currentUser);
         entity.setUser(user);
 
-        OrderDto orderById = this.orderService.getById(orderId);
+        OrderDto orderById = this.orderService.getById(request.getOrderId());
         Order order = OrderDto.toEntity(orderById);
         entity.setOrder(order);
 
+        String customerId = this.stripeService.createCustomer(user.getEmail(), user.getUsername());
+        entity.setCustomerId(customerId);
+
         Subscription saved = this.subscriptionRepository.save(entity);
+
+        MealDto mealDto = orderById.getMeal();
+        DessertDto dessertDto = orderById.getDessert();
+        DrinkDto drinkDto = orderById.getDrink();
+        if (mealDto != null) {
+            try {
+                this.stripeService.createSubscription(customerId, mealDto.getName());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        if (dessertDto != null) {
+            try {
+                this.stripeService.createSubscription(customerId, dessertDto.getName());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        if (drinkDto != null) {
+            try {
+                this.stripeService.createSubscription(customerId, drinkDto.getName());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         return SubscriptionDto.toDto(saved);
     }
 
-    @Scheduled(cron = "#{@lunchSubscriptionService.dailyCron}")
+    @Scheduled(cron = "${subscription.daily.cron}")
     public void dailySubscription() {
         Optional<Subscription> byType = this.subscriptionRepository.findByType(SubscriptionType.DAILY.name());
         if (byType.isPresent()) {
@@ -59,7 +84,7 @@ public class SubscriptionService {
         }
     }
 
-    @Scheduled(cron = "#{@lunchSubscriptionService.weeklyCron}")
+    @Scheduled(cron = "${subscription.weekly.cron}")
     public void weeklySubscription() {
         Optional<Subscription> byType = this.subscriptionRepository.findByType(SubscriptionType.WEEKLY.name());
         if (byType.isPresent()) {
@@ -67,7 +92,7 @@ public class SubscriptionService {
         }
     }
 
-    @Scheduled(cron = "#{@lunchSubscriptionService.monthlyCron}")
+    @Scheduled(cron = "${subscription.monthly.cron}")
     public void monthlySubscription() {
         Optional<Subscription> byType = this.subscriptionRepository.findByType(SubscriptionType.MONTHLY.name());
         byType.ifPresent(this::makeOrder);

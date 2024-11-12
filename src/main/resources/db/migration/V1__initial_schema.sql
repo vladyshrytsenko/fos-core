@@ -56,3 +56,9 @@ CREATE TABLE payments (
     order_id BIGINT,
     status VARCHAR(20) NOT NULL
 );
+
+create table subscriptions (
+    id int auto_increment primary key,
+    customer_id varchar(64),
+    type varchar(20) not null
+);

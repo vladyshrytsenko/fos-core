@@ -6,6 +6,8 @@ import com.example.model.entity.Cuisine;
 import com.example.model.entity.Meal;
 import com.example.model.request.MealRequest;
 import com.example.repository.MealRepository;
+import com.stripe.model.Price;
+import com.stripe.model.Product;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,7 @@ public class MealService {
 
     private final MealRepository mealRepository;
     private final CuisineService cuisineService;
+    private final StripeService stripeService;
 
     @Transactional
     public MealDto create(MealRequest request) {
@@ -37,6 +40,10 @@ public class MealService {
 
         entity.setCreatedAt(LocalDateTime.now());
         Meal saved = this.mealRepository.save(entity);
+
+        Product stripeProduct = this.stripeService.createProduct(saved.getName());
+        Price stripePrice = this.stripeService.createPrice(stripeProduct.getId(), saved.getPrice());
+
         return MealDto.toDto(saved);
     }
 

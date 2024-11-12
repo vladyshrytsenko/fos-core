@@ -14,6 +14,7 @@ public class SubscriptionDto {
     private Long id;
     private String type;
     private Long userId;
+    private String customerId;
     private Long orderId;
 
     public static SubscriptionDto toDto(Subscription entity) {
@@ -21,6 +22,7 @@ public class SubscriptionDto {
             .id(entity.getId())
             .type(entity.getType().name())
             .userId(entity.getUser().getId())
+            .customerId(entity.getCustomerId())
             .orderId(entity.getOrder().getId())
             .build();
     }
@@ -28,6 +30,7 @@ public class SubscriptionDto {
     public static Subscription toEntity(SubscriptionDto dto) {
         return Subscription.builder()
             .id(dto.getId())
+            .customerId(dto.getCustomerId())
             .type(SubscriptionType.valueOf(dto.getType()))
             .build();
     }
