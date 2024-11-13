@@ -17,6 +17,7 @@ public class DrinkDto {
     private Long id;
     private String name;
     private Float price;
+    private String stripeCustomerId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isDeleted;

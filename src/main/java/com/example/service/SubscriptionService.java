@@ -13,6 +13,8 @@ import com.example.model.enums.SubscriptionType;
 import com.example.model.request.OrderRequest;
 import com.example.model.request.SubscriptionRequest;
 import com.example.repository.SubscriptionRepository;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Price;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -31,11 +33,14 @@ public class SubscriptionService {
 
     @Transactional
     public SubscriptionDto create(SubscriptionRequest request) {
+        if (request.getType() == null || request.getType().isEmpty()) {
+            throw new RuntimeException("Subscription type should not be blank");
+        }
+
         Subscription entity = SubscriptionRequest.toEntity(request);
 
         UserDto currentUser = this.userService.getCurrentUser();
         User user = UserDto.toEntity(currentUser);
-        entity.setUser(user);
 
         OrderDto orderById = this.orderService.getById(request.getOrderId());
         Order order = OrderDto.toEntity(orderById);
@@ -49,9 +54,21 @@ public class SubscriptionService {
         MealDto mealDto = orderById.getMeal();
         DessertDto dessertDto = orderById.getDessert();
         DrinkDto drinkDto = orderById.getDrink();
+
+        try {
+            this.stripeService.attachTestCardToCustomer(customerId);
+        } catch (StripeException e) {
+            throw new RuntimeException(e);
+        }
+
         if (mealDto != null) {
             try {
-                this.stripeService.createSubscription(customerId, mealDto.getName());
+                Price priceByProductName = this.stripeService.getPriceByProductName(mealDto.getName());
+                com.stripe.model.Subscription subscription = this.stripeService.createSubscription(
+                    customerId,
+                    priceByProductName.getId(),
+                    request.getType()
+                );
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -59,7 +76,12 @@ public class SubscriptionService {
 
         if (dessertDto != null) {
             try {
-                this.stripeService.createSubscription(customerId, dessertDto.getName());
+                Price priceByProductName = this.stripeService.getPriceByProductName(dessertDto.getName());
+                com.stripe.model.Subscription subscription = this.stripeService.createSubscription(
+                    customerId,
+                    priceByProductName.getId(),
+                    request.getType()
+                );
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -67,7 +89,12 @@ public class SubscriptionService {
 
         if (drinkDto != null) {
             try {
-                this.stripeService.createSubscription(customerId, drinkDto.getName());
+                Price priceByProductName = this.stripeService.getPriceByProductName(drinkDto.getName());
+                com.stripe.model.Subscription subscription = this.stripeService.createSubscription(
+                    customerId,
+                    priceByProductName.getId(),
+                    request.getType()
+                );
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

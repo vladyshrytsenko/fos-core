@@ -21,7 +21,6 @@ public class SubscriptionDto {
         return SubscriptionDto.builder()
             .id(entity.getId())
             .type(entity.getType().name())
-            .userId(entity.getUser().getId())
             .customerId(entity.getCustomerId())
             .orderId(entity.getOrder().getId())
             .build();

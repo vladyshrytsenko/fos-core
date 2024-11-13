@@ -19,6 +19,7 @@ public class MealDto {
     private Float price;
     private Integer portionWeight;
     private Long cuisineId;
+    private String stripeCustomerId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isDeleted;

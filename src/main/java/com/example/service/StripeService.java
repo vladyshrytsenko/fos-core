@@ -1,20 +1,26 @@
 package com.example.service;
 
 import com.example.model.enums.SubscriptionType;
+import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.Invoice;
+import com.stripe.model.PaymentMethod;
 import com.stripe.model.Price;
 import com.stripe.model.Product;
 import com.stripe.model.Subscription;
 import com.stripe.param.CustomerCreateParams;
+import com.stripe.param.CustomerUpdateParams;
 import com.stripe.param.InvoiceCreateParams;
+import com.stripe.param.PaymentMethodAttachParams;
+import com.stripe.param.PaymentMethodCreateParams;
 import com.stripe.param.PriceCreateParams;
 import com.stripe.param.PriceListParams;
 import com.stripe.param.PriceUpdateParams;
 import com.stripe.param.ProductCreateParams;
 import com.stripe.param.ProductListParams;
 import com.stripe.param.SubscriptionCreateParams;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +31,11 @@ public class StripeService {
 
     @Value("${stripe.api.secret-key}")
     private String stripeSecretKey;
+
+    @PostConstruct
+    private void setStripeSecretKey() {
+        Stripe.apiKey = stripeSecretKey;
+    }
 
     public Product createProduct(String name) {
         ProductCreateParams productParams = ProductCreateParams.builder()
@@ -56,17 +67,21 @@ public class StripeService {
         }
     }
 
-    public Price findPriceByProductName(String productName) throws StripeException {
-        Product product = Product.list(ProductListParams.builder().build())
-            .getData().stream()
-            .filter(p -> p.getName().equals(productName))
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("Product not found"));
+    public Price getPriceByProductName(String productName) throws StripeException {
+        Product product = this.getProductByName(productName);
 
         return Price.list(PriceListParams.builder()
                 .setProduct(product.getId())
                 .build()).getData().stream().findFirst()
             .orElseThrow(() -> new RuntimeException("Price not found for product"));
+    }
+
+    public Product getProductByName(String productName) throws StripeException {
+        return Product.list(ProductListParams.builder().build())
+            .getData().stream()
+            .filter(p -> p.getName().equals(productName))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Product not found"));
     }
 
     public Price createRecurringPrice(
@@ -114,10 +129,14 @@ public class StripeService {
 
     public Subscription createSubscription(
         String customerId,
-        String priceId) throws Exception {
+        String priceId,
+        String subscriptionTypeStr) throws Exception {
+
+        SubscriptionType subscriptionType = SubscriptionType.valueOf(subscriptionTypeStr);
+        Price recurringPrice = createRecurringPrice(priceId, subscriptionType);
 
         SubscriptionCreateParams.Item item = SubscriptionCreateParams.Item.builder()
-            .setPrice(priceId)
+            .setPrice(recurringPrice.getId())
             .build();
 
         SubscriptionCreateParams params = SubscriptionCreateParams.builder()
@@ -158,5 +177,28 @@ public class StripeService {
             throw new RuntimeException(e);
         }
         return customer != null ? customer.getId() : null;
+    }
+
+    public void attachTestCardToCustomer(String customerId) throws StripeException {
+        PaymentMethod paymentMethod = PaymentMethod.create(
+            PaymentMethodCreateParams.builder()
+                .setType(PaymentMethodCreateParams.Type.CARD)
+                .setCard(PaymentMethodCreateParams.CardDetails.builder()
+                    .putExtraParam("token", "tok_visa")
+                    .build()
+                )
+                .build()
+        );
+
+        paymentMethod.attach(PaymentMethodAttachParams.builder()
+            .setCustomer(customerId)
+            .build());
+
+        Customer customer = Customer.retrieve(customerId);
+        customer.update(CustomerUpdateParams.builder()
+            .setInvoiceSettings(CustomerUpdateParams.InvoiceSettings.builder()
+                .setDefaultPaymentMethod(paymentMethod.getId())
+                .build())
+            .build());
     }
 }
