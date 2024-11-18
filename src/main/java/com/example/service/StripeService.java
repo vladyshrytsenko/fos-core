@@ -5,6 +5,7 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.Invoice;
+import com.stripe.model.PaymentIntent;
 import com.stripe.model.PaymentMethod;
 import com.stripe.model.Price;
 import com.stripe.model.Product;
@@ -25,6 +26,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class StripeService {
@@ -35,6 +39,14 @@ public class StripeService {
     @PostConstruct
     private void setStripeSecretKey() {
         Stripe.apiKey = stripeSecretKey;
+    }
+
+    public PaymentIntent createPaymentIntent(long amount, String currency) throws StripeException {
+        Map<String, Object> params = new HashMap<>();
+        params.put("amount", amount);
+        params.put("currency", currency);
+
+        return PaymentIntent.create(params);
     }
 
     public Product createProduct(String name) {
