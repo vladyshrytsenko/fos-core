@@ -38,8 +38,8 @@ public class SubscriptionService {
         }
 
         Subscription entity = SubscriptionRequest.toEntity(request);
-
-        UserDto currentUser = this.userService.getCurrentUser();
+        //fixme
+        UserDto currentUser = UserDto.builder().build();
         User user = UserDto.toEntity(currentUser);
 
         OrderDto orderById = this.orderService.getById(request.getOrderId());
