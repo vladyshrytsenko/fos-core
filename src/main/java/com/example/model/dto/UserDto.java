@@ -18,7 +18,7 @@ public class UserDto {
     private String username;
     private String password;
     private String email;
-    private Role role;
+    private String role;
 
     public static UserDto toDto(User user) {
         if (user == null) {
@@ -29,7 +29,7 @@ public class UserDto {
             .username(user.getUsername())
             .password(user.getPassword())
             .email(user.getEmail())
-            .role(user.getRole())
+            .role(user.getRole().name())
             .build();
     }
 
@@ -52,7 +52,7 @@ public class UserDto {
             .username(userDto.getUsername())
             .password(userDto.getPassword())
             .email(userDto.getEmail())
-            .role(userDto.getRole())
+            .role(Role.valueOf(userDto.getRole()))
             .build();
     }
 }

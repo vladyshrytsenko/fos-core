@@ -8,6 +8,9 @@ import com.example.model.request.MealRequest;
 import com.example.repository.MealRepository;
 import com.stripe.model.Price;
 import com.stripe.model.Product;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -23,6 +27,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @RequiredArgsConstructor
 public class MealService {
 
+    private final Validator validator;
     private final MealRepository mealRepository;
     private final CuisineService cuisineService;
     private final StripeService stripeService;
@@ -37,8 +42,13 @@ public class MealService {
 
         Cuisine cuisineByName = this.cuisineService.getByName(request.getCuisineName());
         entity.setCuisine(cuisineByName);
-
         entity.setCreatedAt(LocalDateTime.now());
+
+        Set<ConstraintViolation<Meal>> violations = validator.validate(entity);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+
         Meal saved = this.mealRepository.save(entity);
 
         Product stripeProduct = this.stripeService.createProduct(saved.getName());
@@ -77,6 +87,11 @@ public class MealService {
             byId.setPrice(mealExists.getPrice());
         }
         byId.setUpdatedAt(LocalDateTime.now());
+
+        Set<ConstraintViolation<Meal>> violations = validator.validate(byId);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
 
         Meal updated = mealRepository.save(byId);
         return MealDto.toDto(updated);

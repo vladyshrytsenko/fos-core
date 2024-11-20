@@ -4,6 +4,7 @@ import com.example.model.dto.DrinkDto;
 import com.example.model.entity.Drink;
 import com.example.model.request.DrinkRequest;
 import com.example.service.DrinkService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,7 +32,7 @@ public class DrinkController {
 
     @PostMapping
     public ResponseEntity<DrinkDto> create(
-        @RequestBody DrinkRequest request
+        @RequestBody @Valid DrinkRequest request
     ) {
         DrinkDto created = this.drinkService.create(request);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
@@ -57,7 +58,7 @@ public class DrinkController {
     @PutMapping("/{id}")
     public ResponseEntity<DrinkDto> updateById(
         @PathVariable Long id,
-        @RequestBody DrinkRequest request
+        @RequestBody @Valid DrinkRequest request
     ) {
         DrinkDto updated = this.drinkService.updateById(id, request);
         return new ResponseEntity<>(updated, HttpStatus.OK);

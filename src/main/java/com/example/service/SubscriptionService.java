@@ -15,17 +15,22 @@ import com.example.model.request.SubscriptionRequest;
 import com.example.repository.SubscriptionRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Price;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
 
+    private final Validator validator;
     private final OrderService orderService;
     private final UserService userService;
     private final SubscriptionRepository subscriptionRepository;
@@ -38,8 +43,8 @@ public class SubscriptionService {
         }
 
         Subscription entity = SubscriptionRequest.toEntity(request);
-        //fixme
-        UserDto currentUser = UserDto.builder().build();
+
+        UserDto currentUser = this.userService.getCurrentUser();
         User user = UserDto.toEntity(currentUser);
 
         OrderDto orderById = this.orderService.getById(request.getOrderId());
@@ -48,6 +53,11 @@ public class SubscriptionService {
 
         String customerId = this.stripeService.createCustomer(user.getEmail(), user.getUsername());
         entity.setCustomerId(customerId);
+
+        Set<ConstraintViolation<Subscription>> violations = validator.validate(entity);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
 
         Subscription saved = this.subscriptionRepository.save(entity);
 

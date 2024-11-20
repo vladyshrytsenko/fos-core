@@ -5,6 +5,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,9 +24,13 @@ import org.hibernate.annotations.Where;
 @Where(clause = "is_deleted = false")
 public class Meal extends BaseEntity {
 
+    @Size(min = 4, max = 32, message = "invalid 'name' size")
     private String name;
+
+    @NotNull(message = "'price' should not be null")
     private Float price;
 
+    @NotNull(message = "'portionWeight' should not be null")
     @Column(name = "portion_weight")
     private Integer portionWeight;
 

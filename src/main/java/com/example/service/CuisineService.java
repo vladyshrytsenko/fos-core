@@ -5,6 +5,9 @@ import com.example.model.dto.CuisineDto;
 import com.example.model.entity.Cuisine;
 import com.example.model.request.CuisineRequest;
 import com.example.repository.CuisineRepository;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -12,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static com.example.model.dto.CuisineDto.*;
 
@@ -19,11 +23,17 @@ import static com.example.model.dto.CuisineDto.*;
 @RequiredArgsConstructor
 public class CuisineService {
 
+    private final Validator validator;
     private final CuisineRepository cuisineRepository;
 
     public CuisineDto create(CuisineRequest request) {
         Cuisine entity = CuisineRequest.toEntity(request);
         entity.setCreatedAt(LocalDateTime.now());
+
+        Set<ConstraintViolation<Cuisine>> violations = validator.validate(entity);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
 
         Cuisine saved = this.cuisineRepository.save(entity);
         return toDto(saved);
@@ -54,6 +64,11 @@ public class CuisineService {
         byId.setUpdatedAt(LocalDateTime.now());
 
         Cuisine entity = toEntity(byId);
+        Set<ConstraintViolation<Cuisine>> violations = validator.validate(entity);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+
         Cuisine updated = cuisineRepository.save(entity);
         return toDto(updated);
     }

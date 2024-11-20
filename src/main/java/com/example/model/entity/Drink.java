@@ -1,6 +1,8 @@
 package com.example.model.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +20,9 @@ import org.hibernate.annotations.Where;
 @Where(clause = "is_deleted = false")
 public class Drink extends BaseEntity {
 
+    @Size(min = 4, max = 32, message = "invalid 'name' size")
     private String name;
+
+    @NotNull(message = "'price' should not be null")
     private Float price;
 }

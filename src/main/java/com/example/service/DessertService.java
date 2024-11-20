@@ -8,6 +8,9 @@ import com.example.model.request.DessertRequest;
 import com.example.repository.DessertRepository;
 import com.stripe.model.Price;
 import com.stripe.model.Product;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -23,6 +27,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @RequiredArgsConstructor
 public class DessertService {
 
+    private final Validator validator;
     private final DessertRepository dessertRepository;
     private final CuisineService cuisineService;
     private final StripeService stripeService;
@@ -39,6 +44,12 @@ public class DessertService {
         entity.setCuisine(cuisineByName);
 
         entity.setCreatedAt(LocalDateTime.now());
+
+        Set<ConstraintViolation<Dessert>> violations = validator.validate(entity);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+
         Dessert saved = this.dessertRepository.save(entity);
 
         Product stripeProduct = this.stripeService.createProduct(saved.getName());
@@ -77,6 +88,11 @@ public class DessertService {
             byId.setPrice(dessertExists.getPrice());
         }
         byId.setUpdatedAt(LocalDateTime.now());
+
+        Set<ConstraintViolation<Dessert>> violations = validator.validate(byId);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
 
         Dessert updated = dessertRepository.save(byId);
         return DessertDto.toDto(updated);

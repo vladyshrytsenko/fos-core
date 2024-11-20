@@ -1,6 +1,7 @@
 package com.example.model.request;
 
 import com.example.model.entity.Drink;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,8 @@ import lombok.NoArgsConstructor;
 public class DrinkRequest {
 
     private String name;
+
+    @Positive(message = "'price' should be greater than 0")
     private Float price;
 
     public static Drink toEntity(DrinkRequest request) {
