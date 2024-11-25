@@ -1,10 +1,7 @@
 package com.example.model.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -34,8 +31,4 @@ public class Dessert extends BaseEntity {
     @NotNull(message = "'portionWeight' should not be null")
     @Column(name = "portion_weight")
     private Integer portionWeight;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "cuisine_id", referencedColumnName = "id")
-    private Cuisine cuisine;
 }

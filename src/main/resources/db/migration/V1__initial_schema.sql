@@ -31,12 +31,10 @@ create table desserts(
     id int auto_increment primary key,
     name varchar(64) not null,
     portion_weight float not null,
-    cuisine_id int not null,
     created_at timestamp default current_timestamp,
     updated_at timestamp default current_timestamp,
     deleted_at timestamp default current_timestamp,
-    is_deleted boolean default false,
-    foreign key (cuisine_id) references cuisines(id)
+    is_deleted boolean default false
 );
 
 create table meals(

@@ -18,7 +18,6 @@ public class DessertDto {
     private String name;
     private Float price;
     private Integer portionWeight;
-    private Long cuisineId;
     private String stripeCustomerId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -26,7 +25,7 @@ public class DessertDto {
     private LocalDateTime deletedAt;
 
     public static DessertDto toDto(Dessert entity) {
-        DessertDto dessertDto = DessertDto.builder()
+        return DessertDto.builder()
             .id(entity.getId())
             .name(entity.getName())
             .price(entity.getPrice())
@@ -36,12 +35,6 @@ public class DessertDto {
             .isDeleted(entity.isDeleted())
             .deletedAt(entity.getDeletedAt())
             .build();
-
-        if (entity.getCuisine() != null) {
-            dessertDto.setCuisineId(entity.getCuisine().getId());
-        }
-
-        return dessertDto;
     }
 
     public static Dessert toEntity(DessertDto dto) {

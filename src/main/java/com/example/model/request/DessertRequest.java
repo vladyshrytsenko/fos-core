@@ -21,8 +21,6 @@ public class DessertRequest {
     @Positive(message = "'portionWeight' should be greater than 0")
     private Integer portionWeight;
 
-    private String cuisineName;
-
     public static Dessert toEntity(DessertRequest request) {
         return Dessert.builder()
             .name(request.getName())

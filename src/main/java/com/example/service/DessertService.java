@@ -2,7 +2,6 @@ package com.example.service;
 
 import com.example.exception.EntityNotFoundException;
 import com.example.model.dto.DessertDto;
-import com.example.model.entity.Cuisine;
 import com.example.model.entity.Dessert;
 import com.example.model.request.DessertRequest;
 import com.example.repository.DessertRepository;
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Service
@@ -29,19 +27,11 @@ public class DessertService {
 
     private final Validator validator;
     private final DessertRepository dessertRepository;
-    private final CuisineService cuisineService;
     private final StripeService stripeService;
 
     @Transactional
     public DessertDto create(DessertRequest request) {
         Dessert entity = DessertRequest.toEntity(request);
-
-        if (isBlank(request.getCuisineName())) {
-            throw new RuntimeException("Cuisine should not be blank");
-        }
-
-        Cuisine cuisineByName = this.cuisineService.getByName(request.getCuisineName());
-        entity.setCuisine(cuisineByName);
 
         entity.setCreatedAt(LocalDateTime.now());
 
