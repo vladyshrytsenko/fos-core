@@ -2,6 +2,7 @@ package com.example.model.request;
 
 import com.example.model.entity.Subscription;
 import com.example.model.enums.SubscriptionType;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class SubscriptionRequest {
 
+    @NotNull(message = "'type' should not be null")
     private String type;
 
     @Positive(message = "'userId' should be greater than 0")

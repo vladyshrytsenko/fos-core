@@ -15,22 +15,17 @@ import com.example.model.request.SubscriptionRequest;
 import com.example.repository.SubscriptionRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Price;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
 
-    private final Validator validator;
     private final OrderService orderService;
     private final UserService userService;
     private final SubscriptionRepository subscriptionRepository;
@@ -42,24 +37,19 @@ public class SubscriptionService {
             throw new RuntimeException("Subscription type should not be blank");
         }
 
-        Subscription entity = SubscriptionRequest.toEntity(request);
+        Subscription subscriptionToSave = SubscriptionRequest.toEntity(request);
 
         UserDto currentUser = this.userService.getCurrentUser();
         User user = UserDto.toEntity(currentUser);
 
         OrderDto orderById = this.orderService.getById(request.getOrderId());
         Order order = OrderDto.toEntity(orderById);
-        entity.setOrder(order);
+        subscriptionToSave.setOrder(order);
 
         String customerId = this.stripeService.createCustomer(user.getEmail(), user.getUsername());
-        entity.setCustomerId(customerId);
+        subscriptionToSave.setCustomerId(customerId);
 
-        Set<ConstraintViolation<Subscription>> violations = validator.validate(entity);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-
-        Subscription saved = this.subscriptionRepository.save(entity);
+        Subscription createdSubscription = this.subscriptionRepository.save(subscriptionToSave);
 
         MealDto mealDto = orderById.getMeal();
         DessertDto dessertDto = orderById.getDessert();
@@ -74,7 +64,7 @@ public class SubscriptionService {
         if (mealDto != null) {
             try {
                 Price priceByProductName = this.stripeService.getPriceByProductName(mealDto.getName());
-                com.stripe.model.Subscription subscription = this.stripeService.createSubscription(
+                this.stripeService.createSubscription(
                     customerId,
                     priceByProductName.getId(),
                     request.getType()
@@ -87,7 +77,7 @@ public class SubscriptionService {
         if (dessertDto != null) {
             try {
                 Price priceByProductName = this.stripeService.getPriceByProductName(dessertDto.getName());
-                com.stripe.model.Subscription subscription = this.stripeService.createSubscription(
+                this.stripeService.createSubscription(
                     customerId,
                     priceByProductName.getId(),
                     request.getType()
@@ -100,7 +90,7 @@ public class SubscriptionService {
         if (drinkDto != null) {
             try {
                 Price priceByProductName = this.stripeService.getPriceByProductName(drinkDto.getName());
-                com.stripe.model.Subscription subscription = this.stripeService.createSubscription(
+                this.stripeService.createSubscription(
                     customerId,
                     priceByProductName.getId(),
                     request.getType()
@@ -110,29 +100,29 @@ public class SubscriptionService {
             }
         }
 
-        return SubscriptionDto.toDto(saved);
+        return SubscriptionDto.toDto(createdSubscription);
     }
 
     @Scheduled(cron = "${subscription.daily.cron}")
     public void dailySubscription() {
-        Optional<Subscription> byType = this.subscriptionRepository.findByType(SubscriptionType.DAILY.name());
-        if (byType.isPresent()) {
-            byType.ifPresent(this::makeOrder);
+        Optional<Subscription> subscriptionByType = this.subscriptionRepository.findByType(SubscriptionType.DAILY.name());
+        if (subscriptionByType.isPresent()) {
+            subscriptionByType.ifPresent(this::makeOrder);
         }
     }
 
     @Scheduled(cron = "${subscription.weekly.cron}")
     public void weeklySubscription() {
-        Optional<Subscription> byType = this.subscriptionRepository.findByType(SubscriptionType.WEEKLY.name());
-        if (byType.isPresent()) {
-            byType.ifPresent(this::makeOrder);
+        Optional<Subscription> subscriptionByType = this.subscriptionRepository.findByType(SubscriptionType.WEEKLY.name());
+        if (subscriptionByType.isPresent()) {
+            subscriptionByType.ifPresent(this::makeOrder);
         }
     }
 
     @Scheduled(cron = "${subscription.monthly.cron}")
     public void monthlySubscription() {
-        Optional<Subscription> byType = this.subscriptionRepository.findByType(SubscriptionType.MONTHLY.name());
-        byType.ifPresent(this::makeOrder);
+        Optional<Subscription> subscriptionByType = this.subscriptionRepository.findByType(SubscriptionType.MONTHLY.name());
+        subscriptionByType.ifPresent(this::makeOrder);
     }
 
     private void makeOrder(Subscription byType) {

@@ -8,9 +8,6 @@ import com.example.model.request.MealRequest;
 import com.example.repository.MealRepository;
 import com.stripe.model.Price;
 import com.stripe.model.Product;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
@@ -18,50 +15,39 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.Set;
-
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
 @RequiredArgsConstructor
 public class MealService {
 
-    private final Validator validator;
     private final MealRepository mealRepository;
     private final CuisineService cuisineService;
     private final StripeService stripeService;
 
     @Transactional
     public MealDto create(MealRequest request) {
-        Meal entity = MealRequest.toEntity(request);
+        Meal mealToSave = MealRequest.toEntity(request);
 
         if (isBlank(request.getCuisineName())) {
             throw new RuntimeException("Cuisine should not be blank");
         }
 
         Cuisine cuisineByName = this.cuisineService.getByName(request.getCuisineName());
-        entity.setCuisine(cuisineByName);
-        entity.setCreatedAt(LocalDateTime.now());
+        mealToSave.setCuisine(cuisineByName);
+        Meal createdMeal = this.mealRepository.save(mealToSave);
 
-        Set<ConstraintViolation<Meal>> violations = validator.validate(entity);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
+        Product stripeProduct = this.stripeService.createProduct(createdMeal.getName());
+        Price stripePrice = this.stripeService.createPrice(stripeProduct.getId(), createdMeal.getPrice());
 
-        Meal saved = this.mealRepository.save(entity);
-
-        Product stripeProduct = this.stripeService.createProduct(saved.getName());
-        Price stripePrice = this.stripeService.createPrice(stripeProduct.getId(), saved.getPrice());
-
-        return MealDto.toDto(saved);
+        return MealDto.toDto(createdMeal);
     }
 
     public MealDto getById(Long id) {
-        Meal found = this.mealRepository.findById(id)
+        Meal mealById = this.mealRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Meal.class));
 
-        return MealDto.toDto(found);
+        return MealDto.toDto(mealById);
     }
 
     public Meal getByName(String name) {
@@ -74,27 +60,21 @@ public class MealService {
     }
 
     public MealDto updateById(Long id, MealRequest mealExists) {
-        Meal byId = this.mealRepository.findById(id)
+        Meal mealById = this.mealRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Meal.class));
 
         if (StringUtils.isNotBlank(mealExists.getName())) {
-            byId.setName(mealExists.getName());
+            mealById.setName(mealExists.getName());
         }
         if (mealExists.getPortionWeight() != null) {
-            byId.setPortionWeight(mealExists.getPortionWeight());
+            mealById.setPortionWeight(mealExists.getPortionWeight());
         }
         if (mealExists.getPrice() != null) {
-            byId.setPrice(mealExists.getPrice());
-        }
-        byId.setUpdatedAt(LocalDateTime.now());
-
-        Set<ConstraintViolation<Meal>> violations = validator.validate(byId);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
+            mealById.setPrice(mealExists.getPrice());
         }
 
-        Meal updated = mealRepository.save(byId);
-        return MealDto.toDto(updated);
+        Meal updatedMeal = mealRepository.save(mealById);
+        return MealDto.toDto(updatedMeal);
     }
 
     public void deleteById(Long id) {

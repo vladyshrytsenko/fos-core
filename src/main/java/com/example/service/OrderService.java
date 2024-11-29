@@ -33,7 +33,7 @@ public class OrderService {
 
     @Transactional
     public OrderDto create(OrderRequest request) {
-        Order entity = OrderRequest.toEntity(request);
+        Order orderToSave = OrderRequest.toEntity(request);
 
         if (isBlank(request.getMealName()) && isBlank(request.getDessertName())) {
             throw new RuntimeException("Lunch should not be blank");
@@ -42,27 +42,26 @@ public class OrderService {
         float totalPrice = 0f;
         if (isNotBlank(request.getMealName())) {
             Meal mealByName = this.mealService.getByName(request.getMealName());
-            entity.setMeal(mealByName);
+            orderToSave.setMeal(mealByName);
 
             totalPrice += mealByName.getPrice();
         }
 
         if (isNotBlank(request.getDessertName())) {
             Dessert dessertByName = this.dessertService.getByName(request.getDessertName());
-            entity.setDessert(dessertByName);
+            orderToSave.setDessert(dessertByName);
 
             totalPrice += dessertByName.getPrice();
         }
 
         if (isNotBlank(request.getDrinkName())) {
             Drink drinkByName = this.drinkService.getByName(request.getDrinkName());
-            entity.setDrink(drinkByName);
+            orderToSave.setDrink(drinkByName);
 
             totalPrice += drinkByName.getPrice();
         }
 
-        entity.setTotalPrice(totalPrice);
-        entity.setCreatedAt(LocalDateTime.now());
+        orderToSave.setTotalPrice(totalPrice);
 
         PaymentDto payment = PaymentDto.builder()
             .status(PaymentStatus.PENDING.name())
@@ -70,17 +69,17 @@ public class OrderService {
             .build();
 
         Payment paymentEntity = PaymentDto.toEntity(payment);
-        entity.setPayment(paymentEntity);
+        orderToSave.setPayment(paymentEntity);
 
-        Order saved = this.orderRepository.save(entity);
-        return OrderDto.toDto(saved);
+        Order createdOrder = this.orderRepository.save(orderToSave);
+        return OrderDto.toDto(createdOrder);
     }
 
     public OrderDto getById(Long id) {
-        Order found = this.orderRepository.findById(id)
+        Order orderById = this.orderRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Order.class));
 
-        return OrderDto.toDto(found);
+        return OrderDto.toDto(orderById);
     }
 
     public Page<Order> findAll(Pageable pageable) {

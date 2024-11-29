@@ -7,17 +7,11 @@ import com.example.model.request.DessertRequest;
 import com.example.repository.DessertRepository;
 import com.stripe.model.Price;
 import com.stripe.model.Product;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -25,34 +19,25 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @RequiredArgsConstructor
 public class DessertService {
 
-    private final Validator validator;
     private final DessertRepository dessertRepository;
     private final StripeService stripeService;
 
     @Transactional
     public DessertDto create(DessertRequest request) {
-        Dessert entity = DessertRequest.toEntity(request);
+        Dessert dessertToSave = DessertRequest.toEntity(request);
+        Dessert createdDessert = this.dessertRepository.save(dessertToSave);
 
-        entity.setCreatedAt(LocalDateTime.now());
+        Product stripeProduct = this.stripeService.createProduct(createdDessert.getName());
+        Price stripePrice = this.stripeService.createPrice(stripeProduct.getId(), createdDessert.getPrice());
 
-        Set<ConstraintViolation<Dessert>> violations = validator.validate(entity);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-
-        Dessert saved = this.dessertRepository.save(entity);
-
-        Product stripeProduct = this.stripeService.createProduct(saved.getName());
-        Price stripePrice = this.stripeService.createPrice(stripeProduct.getId(), saved.getPrice());
-
-        return DessertDto.toDto(saved);
+        return DessertDto.toDto(createdDessert);
     }
 
     public DessertDto getById(Long id) {
-        Dessert found = this.dessertRepository.findById(id)
+        Dessert dessertById = this.dessertRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Dessert.class));
 
-        return DessertDto.toDto(found);
+        return DessertDto.toDto(dessertById);
     }
 
     public Dessert getByName(String name) {
@@ -65,27 +50,21 @@ public class DessertService {
     }
 
     public DessertDto updateById(Long id, DessertRequest dessertExists) {
-        Dessert byId = this.dessertRepository.findById(id)
+        Dessert dessertById = this.dessertRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Dessert.class));
 
         if (isNotBlank(dessertExists.getName())) {
-            byId.setName(dessertExists.getName());
+            dessertById.setName(dessertExists.getName());
         }
         if (dessertExists.getPortionWeight() != null) {
-            byId.setPortionWeight(dessertExists.getPortionWeight());
+            dessertById.setPortionWeight(dessertExists.getPortionWeight());
         }
         if (dessertExists.getPrice() != null) {
-            byId.setPrice(dessertExists.getPrice());
-        }
-        byId.setUpdatedAt(LocalDateTime.now());
-
-        Set<ConstraintViolation<Dessert>> violations = validator.validate(byId);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
+            dessertById.setPrice(dessertExists.getPrice());
         }
 
-        Dessert updated = dessertRepository.save(byId);
-        return DessertDto.toDto(updated);
+        Dessert updatedDessert = dessertRepository.save(dessertById);
+        return DessertDto.toDto(updatedDessert);
     }
 
     public void deleteById(Long id) {

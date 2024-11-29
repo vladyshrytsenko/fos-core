@@ -8,7 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -27,7 +26,6 @@ public class Payment {
     @Column(name = "total_price")
     private Float totalPrice;
 
-    @NotNull(message = "'status' should not be null")
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 }

@@ -80,10 +80,10 @@ public class StripeService {
     }
 
     public Price getPriceByProductName(String productName) throws StripeException {
-        Product product = this.getProductByName(productName);
+        Product productByName = this.getProductByName(productName);
 
         return Price.list(PriceListParams.builder()
-                .setProduct(product.getId())
+                .setProduct(productByName.getId())
                 .build()).getData().stream().findFirst()
             .orElseThrow(() -> new RuntimeException("Price not found for product"));
     }
@@ -137,7 +137,6 @@ public class StripeService {
 
         return newOneTimePrice;
     }
-
 
     public Subscription createSubscription(
         String customerId,

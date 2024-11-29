@@ -14,9 +14,9 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
 
     public PaymentDto getById(String id) {
-        Payment found = this.paymentRepository.findById(id)
+        Payment paymentById = this.paymentRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Payment.class));
 
-        return PaymentDto.toDto(found);
+        return PaymentDto.toDto(paymentById);
     }
 }

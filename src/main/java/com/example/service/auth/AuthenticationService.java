@@ -22,16 +22,15 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(UserDto userRequestDTO) {
-        User user = User.builder()
+        User userToSave = User.builder()
             .username(userRequestDTO.getUsername())
             .password(passwordEncoder.encode(userRequestDTO.getPassword()))
             .email(userRequestDTO.getEmail())
             .role(Role.valueOf(userRequestDTO.getRole()))
             .build();
 
-        User saved = userRepository.save(user);
-
-        return getAuthenticationResponse(saved);
+        User createdUser = userRepository.save(userToSave);
+        return getAuthenticationResponse(createdUser);
     }
 
     public AuthenticationResponse authenticate(UserDto user) {
@@ -42,7 +41,6 @@ public class AuthenticationService {
 
         User userByEmail = userRepository.findByEmail(user.getEmail())
             .orElseThrow(() -> new EntityNotFoundException(User.class));
-
         return getAuthenticationResponse(userByEmail);
     }
 

@@ -5,17 +5,11 @@ import com.example.model.dto.CuisineDto;
 import com.example.model.entity.Cuisine;
 import com.example.model.request.CuisineRequest;
 import com.example.repository.CuisineRepository;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.Set;
 
 import static com.example.model.dto.CuisineDto.*;
 
@@ -23,27 +17,19 @@ import static com.example.model.dto.CuisineDto.*;
 @RequiredArgsConstructor
 public class CuisineService {
 
-    private final Validator validator;
     private final CuisineRepository cuisineRepository;
 
     public CuisineDto create(CuisineRequest request) {
-        Cuisine entity = CuisineRequest.toEntity(request);
-        entity.setCreatedAt(LocalDateTime.now());
-
-        Set<ConstraintViolation<Cuisine>> violations = validator.validate(entity);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-
-        Cuisine saved = this.cuisineRepository.save(entity);
-        return toDto(saved);
+        Cuisine cuisineToSave = CuisineRequest.toEntity(request);
+        Cuisine createdCuisine = this.cuisineRepository.save(cuisineToSave);
+        return toDto(createdCuisine);
     }
 
     public CuisineDto getById(Long id) {
-        Cuisine found = this.cuisineRepository.findById(id)
+        Cuisine cuisineById = this.cuisineRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Cuisine.class));
 
-        return toDto(found);
+        return toDto(cuisineById);
     }
 
     public Cuisine getByName(String name) {
@@ -56,21 +42,15 @@ public class CuisineService {
     }
 
     public CuisineDto updateById(Long id, CuisineRequest cuisineExists) {
-        CuisineDto byId = getById(id);
+        CuisineDto cuisineById = this.getById(id);
 
         if (StringUtils.isNotBlank(cuisineExists.getName())) {
-            byId.setName(cuisineExists.getName());
-        }
-        byId.setUpdatedAt(LocalDateTime.now());
-
-        Cuisine entity = toEntity(byId);
-        Set<ConstraintViolation<Cuisine>> violations = validator.validate(entity);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
+            cuisineById.setName(cuisineExists.getName());
         }
 
-        Cuisine updated = cuisineRepository.save(entity);
-        return toDto(updated);
+        Cuisine cuisineToUpdate = toEntity(cuisineById);
+        Cuisine updatedCuisine = cuisineRepository.save(cuisineToUpdate);
+        return toDto(updatedCuisine);
     }
 
     public void deleteById(Long id) {

@@ -1,13 +1,19 @@
 package com.example.controller;
 
 import com.example.model.dto.UserDto;
+import com.example.model.entity.User;
 import com.example.model.enums.Role;
+import com.example.model.request.GoogleAuthRequest;
 import com.example.model.response.AuthenticationResponse;
 import com.example.service.UserService;
 import com.example.service.auth.AuthenticationService;
+import com.example.service.auth.GoogleOAuthService;
+import com.example.service.auth.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +32,8 @@ public class UserController {
 
     private final UserService userService;
     private final AuthenticationService authenticationService;
+    private final GoogleOAuthService googleOAuthService;
+    private final JwtService jwtService;
 
     @GetMapping("/current-user")
     public ResponseEntity<UserDto> getCurrentUser() {
@@ -35,6 +43,38 @@ public class UserController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+    }
+
+    @GetMapping("/auth/google")
+    public ResponseEntity<?> authenticateWithGoogle(@RequestBody GoogleAuthRequest googleAuthRequest) {
+        String idToken = googleAuthRequest.getToken();
+
+        String googleUserId = googleOAuthService.validateTokenAndGetUserId(idToken);
+        if (googleUserId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Google token");
+        }
+
+        UserDto userDto = userService.findByGoogleId(googleUserId);
+        if (userDto == null) {
+            userDto = userService.createUserFromGoogle(googleUserId, idToken);
+        }
+
+        User entity = UserDto.toEntity(userDto);
+        String jwt = jwtService.generateToken(entity);
+        return ResponseEntity.ok(new AuthenticationResponse(jwt));
+    }
+
+    @GetMapping("/oauth/info")
+    public ResponseEntity<UserDto> getUserInfo(@AuthenticationPrincipal OAuth2User principal) {
+        if (principal != null) {
+            String email = principal.getAttribute("email");
+            String name = principal.getAttribute("name");
+
+            UserDto userDto = userService.getByEmail(email);
+
+            return ResponseEntity.ok(userDto);
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @GetMapping("/{id}")

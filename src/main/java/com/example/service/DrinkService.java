@@ -7,48 +7,34 @@ import com.example.model.request.DrinkRequest;
 import com.example.repository.DrinkRepository;
 import com.stripe.model.Price;
 import com.stripe.model.Product;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.Set;
-
 @Service
 @RequiredArgsConstructor
 public class DrinkService {
 
-    private final Validator validator;
     private final DrinkRepository drinkRepository;
     private final StripeService stripeService;
 
     public DrinkDto create(DrinkRequest request) {
-        Drink entity = DrinkRequest.toEntity(request);
-        entity.setCreatedAt(LocalDateTime.now());
+        Drink drinkToSave = DrinkRequest.toEntity(request);
+        Drink createdDrink = this.drinkRepository.save(drinkToSave);
 
-        Set<ConstraintViolation<Drink>> violations = validator.validate(entity);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
+        Product stripeProduct = this.stripeService.createProduct(createdDrink.getName());
+        Price stripePrice = this.stripeService.createPrice(stripeProduct.getId(), createdDrink.getPrice());
 
-        Drink saved = this.drinkRepository.save(entity);
-
-        Product stripeProduct = this.stripeService.createProduct(saved.getName());
-        Price stripePrice = this.stripeService.createPrice(stripeProduct.getId(), saved.getPrice());
-
-        return DrinkDto.toDto(saved);
+        return DrinkDto.toDto(createdDrink);
     }
 
     public DrinkDto getById(Long id) {
-        Drink found = this.drinkRepository.findById(id)
+        Drink drinkById = this.drinkRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Drink.class));
 
-        return DrinkDto.toDto(found);
+        return DrinkDto.toDto(drinkById);
     }
 
     public Drink getByName(String name) {
@@ -61,24 +47,18 @@ public class DrinkService {
     }
 
     public DrinkDto updateById(Long id, DrinkRequest drinkExists) {
-        Drink byId = this.drinkRepository.findById(id)
+        Drink drinkById = this.drinkRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Drink.class));
 
         if (StringUtils.isNotBlank(drinkExists.getName())) {
-            byId.setName(drinkExists.getName());
+            drinkById.setName(drinkExists.getName());
         }
         if (drinkExists.getPrice() != null) {
-            byId.setPrice(drinkExists.getPrice());
-        }
-        byId.setUpdatedAt(LocalDateTime.now());
-
-        Set<ConstraintViolation<Drink>> violations = validator.validate(byId);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
+            drinkById.setPrice(drinkExists.getPrice());
         }
 
-        Drink updated = drinkRepository.save(byId);
-        return DrinkDto.toDto(updated);
+        Drink updatedDrink = drinkRepository.save(drinkById);
+        return DrinkDto.toDto(updatedDrink);
     }
 
     public void deleteById(Long id) {
