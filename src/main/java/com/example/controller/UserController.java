@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,30 +39,28 @@ public class UserController {
     @GetMapping("/current-user")
     public ResponseEntity<UserDto> getCurrentUser() {
         try {
-            UserDto userDto = userService.getCurrentUser();
+            UserDto userDto = this.userService.getCurrentUser();
             return ResponseEntity.ok(userDto);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
-    @GetMapping("/auth/google")
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping("/auth/google")
     public ResponseEntity<?> authenticateWithGoogle(@RequestBody GoogleAuthRequest googleAuthRequest) {
         String idToken = googleAuthRequest.getToken();
 
-        String googleUserId = googleOAuthService.validateTokenAndGetUserId(idToken);
+        String googleUserId = this.googleOAuthService.validateTokenAndGetUserId(idToken);
         if (googleUserId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Google token");
         }
 
-        UserDto userDto = userService.findByGoogleId(googleUserId);
+        UserDto userDto = this.userService.findByGoogleId(googleUserId);
         if (userDto == null) {
-            userDto = userService.createUserFromGoogle(googleUserId, idToken);
+            this.userService.createUserFromGoogle(googleUserId, idToken);
         }
-
-        User entity = UserDto.toEntity(userDto);
-        String jwt = jwtService.generateToken(entity);
-        return ResponseEntity.ok(new AuthenticationResponse(jwt));
+        return ResponseEntity.ok(new AuthenticationResponse(idToken));
     }
 
     @GetMapping("/oauth/info")

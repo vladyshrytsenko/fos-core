@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,10 +36,8 @@ public class UserService {
     }
 
     public UserDto findByGoogleId(String googleId) {
-        User userByGoogleId = userRepository.findByGoogleUserId(googleId)
-            .orElseThrow(() -> new EntityNotFoundException(User.class));
-
-        return UserDto.toDto(userByGoogleId);
+        Optional<User> userByGoogleIdOptional = userRepository.findByGoogleUserId(googleId);
+        return userByGoogleIdOptional.map(UserDto::toDto).orElse(null);
     }
 
     public UserDto getById(Long id) {
