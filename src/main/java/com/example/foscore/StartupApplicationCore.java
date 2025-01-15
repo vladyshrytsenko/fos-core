@@ -8,14 +8,14 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.example")
-@EntityScan(basePackages = "com.example.model.entity")
-@EnableJpaRepositories(basePackages = "com.example.repository")
+@ComponentScan(basePackages = {"com.example.foscore", "com.example.fosauth"})
+@EntityScan(basePackages = {"com.example.foscore.model.entity", "com.example.fosauth.model.entity"})
+@EnableJpaRepositories(basePackages = {"com.example.foscore.repository", "com.example.fosauth.repository"})
 @EnableScheduling
-public class StartupApplication {
+public class StartupApplicationCore {
 
     public static void main(String[] args) {
-        SpringApplication.run(StartupApplication.class, args);
+        SpringApplication.run(StartupApplicationCore.class, args);
     }
 
 }

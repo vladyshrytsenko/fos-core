@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandlerCore {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Object> handleValidationException(ConstraintViolationException ex) {

@@ -1,6 +1,6 @@
 package com.example.foscore.controller;
 
-import com.example.foscore.StartupApplication;
+import com.example.foscore.StartupApplicationCore;
 import com.example.foscore.model.dto.DessertDto;
 import com.example.foscore.model.entity.Dessert;
 import com.example.foscore.model.request.CuisineRequest;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = StartupApplication.class)
+@SpringBootTest(classes = StartupApplicationCore.class)
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class DessertControllerTest {

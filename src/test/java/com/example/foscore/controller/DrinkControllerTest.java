@@ -1,6 +1,6 @@
 package com.example.foscore.controller;
 
-import com.example.foscore.StartupApplication;
+import com.example.foscore.StartupApplicationCore;
 import com.example.foscore.model.dto.DrinkDto;
 import com.example.foscore.model.entity.Drink;
 import com.example.foscore.model.request.DrinkRequest;
@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = StartupApplication.class)
+@SpringBootTest(classes = StartupApplicationCore.class)
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class DrinkControllerTest {
