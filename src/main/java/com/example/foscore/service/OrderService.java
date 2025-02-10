@@ -11,6 +11,7 @@ import com.example.foscore.model.entity.Payment;
 import com.example.foscore.model.enums.PaymentStatus;
 import com.example.foscore.model.request.OrderRequest;
 import com.example.foscore.repository.OrderRepository;
+import com.example.foscore.service.kafka.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ public class OrderService {
     private final MealService mealService;
     private final DessertService dessertService;
     private final DrinkService drinkService;
+    private final KafkaProducerService kafkaProducerService;
 
     @Transactional
     public OrderDto create(OrderRequest request) {
@@ -41,6 +43,7 @@ public class OrderService {
         if (isNotBlank(request.getMealName())) {
             Meal mealByName = this.mealService.getByName(request.getMealName());
             orderToSave.setMeal(mealByName);
+            this.kafkaProducerService.sendOrderEvent(request.getMealName());
 
             totalPrice += mealByName.getPrice();
         }
@@ -48,6 +51,7 @@ public class OrderService {
         if (isNotBlank(request.getDessertName())) {
             Dessert dessertByName = this.dessertService.getByName(request.getDessertName());
             orderToSave.setDessert(dessertByName);
+            this.kafkaProducerService.sendOrderEvent(request.getDessertName());
 
             totalPrice += dessertByName.getPrice();
         }
