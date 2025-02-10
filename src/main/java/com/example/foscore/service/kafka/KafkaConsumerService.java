@@ -10,10 +10,10 @@ import java.util.Map;
 @Service
 public class KafkaConsumerService {
 
-    private final Map<String, Integer> dishPopularity = new ConcurrentHashMap<>();
-
     @KafkaListener(topics = "popular-dishes", groupId = "popular-dishes-group")
     public void consumeOrderEvent(String dishName) {
         dishPopularity.merge(dishName, 1, Integer::sum);
     }
+
+    private final Map<String, Integer> dishPopularity = new ConcurrentHashMap<>();
 }

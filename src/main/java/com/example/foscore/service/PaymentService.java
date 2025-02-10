@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PaymentService {
 
-    private final PaymentRepository paymentRepository;
-
     public PaymentDto getById(String id) {
         Payment paymentById = this.paymentRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Payment.class));
 
         return PaymentDto.toDto(paymentById);
     }
+
+    private final PaymentRepository paymentRepository;
 }

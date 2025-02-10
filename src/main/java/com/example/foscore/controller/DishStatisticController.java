@@ -12,11 +12,11 @@ import java.util.Map;
 @RequestMapping("/api/popular-dishes")
 public class DishStatisticController {
 
-    private final KafkaConsumerService kafkaConsumerService;
-
     @GetMapping
     public Map<String, Integer> getPopularDishes() {
         return kafkaConsumerService.getDishPopularity();
     }
+
+    private final KafkaConsumerService kafkaConsumerService;
 }
 

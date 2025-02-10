@@ -28,8 +28,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class DessertController {
 
-    private final DessertService dessertService;
-
     @PostMapping
     public ResponseEntity<DessertDto> create(
         @RequestBody @Valid DessertRequest request
@@ -69,4 +67,6 @@ public class DessertController {
         this.dessertService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    private final DessertService dessertService;
 }

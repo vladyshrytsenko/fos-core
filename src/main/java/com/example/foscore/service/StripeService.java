@@ -33,14 +33,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StripeService {
 
-    @Value("${stripe.api.secret-key}")
-    private String stripeSecretKey;
-
-    @PostConstruct
-    private void setStripeSecretKey() {
-        Stripe.apiKey = stripeSecretKey;
-    }
-
     public PaymentIntent createPaymentIntent(long amount, String currency) throws StripeException {
         Map<String, Object> params = new HashMap<>();
         params.put("amount", amount);
@@ -211,5 +203,13 @@ public class StripeService {
                 .setDefaultPaymentMethod(paymentMethod.getId())
                 .build())
             .build());
+    }
+
+    @Value("${stripe.api.secret-key}")
+    private String stripeSecretKey;
+
+    @PostConstruct
+    private void setStripeSecretKey() {
+        Stripe.apiKey = stripeSecretKey;
     }
 }

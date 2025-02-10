@@ -28,8 +28,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CuisineController {
 
-    private final CuisineService cuisineService;
-
     @PostMapping
     public ResponseEntity<CuisineDto> create(
         @RequestBody @Valid CuisineRequest request
@@ -69,4 +67,6 @@ public class CuisineController {
         this.cuisineService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    private final CuisineService cuisineService;
 }

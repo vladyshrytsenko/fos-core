@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ReportController {
 
-    private final ReportService reportService;
-
     @PostMapping
     public ResponseEntity<byte[]> create() {
         byte[] report = this.reportService.makeReport();
         return new ResponseEntity<>(report, HttpStatus.OK);
     }
+
+    private final ReportService reportService;
 }

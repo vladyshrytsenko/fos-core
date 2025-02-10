@@ -28,8 +28,6 @@ import java.util.Optional;
 @RequestMapping("/api/meals")
 public class MealController {
 
-    private final MealService mealService;
-
     @PostMapping
     public ResponseEntity<MealDto> create(
         @RequestBody @Valid MealRequest request
@@ -69,4 +67,6 @@ public class MealController {
         this.mealService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    private final MealService mealService;
 }

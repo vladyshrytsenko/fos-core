@@ -21,10 +21,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @RequiredArgsConstructor
 public class MealService {
 
-    private final MealRepository mealRepository;
-    private final CuisineService cuisineService;
-    private final StripeService stripeService;
-
     @Transactional
     public MealDto create(MealRequest request) {
         Meal mealToSave = MealRequest.toEntity(request);
@@ -80,4 +76,8 @@ public class MealService {
     public void deleteById(Long id) {
         this.mealRepository.deleteById(id);
     }
+
+    private final MealRepository mealRepository;
+    private final CuisineService cuisineService;
+    private final StripeService stripeService;
 }

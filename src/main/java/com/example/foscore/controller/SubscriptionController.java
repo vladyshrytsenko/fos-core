@@ -17,11 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SubscriptionController {
 
-    private final SubscriptionService subscriptionService;
-
     @PostMapping
     public ResponseEntity<SubscriptionDto> create(@RequestBody @Valid SubscriptionRequest request) {
         SubscriptionDto created = this.subscriptionService.create(request);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
+
+    private final SubscriptionService subscriptionService;
 }

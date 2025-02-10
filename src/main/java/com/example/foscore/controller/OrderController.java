@@ -28,12 +28,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderService orderService;
-    private final PaymentService paymentService;
-
-    @Value("${stripe.api.secret-key}")
-    private String stripeSecretKey;
-
     @PostMapping
     public ResponseEntity<OrderDto> create(
         @RequestBody OrderRequest request
@@ -64,4 +58,10 @@ public class OrderController {
         this.orderService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    private final OrderService orderService;
+    private final PaymentService paymentService;
+
+    @Value("${stripe.api.secret-key}")
+    private String stripeSecretKey;
 }

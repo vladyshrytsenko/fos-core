@@ -28,11 +28,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SubscriptionService {
 
-    private final OrderService orderService;
-    private final UserService userService;
-    private final SubscriptionRepository subscriptionRepository;
-    private final StripeService stripeService;
-
     @Transactional
     public SubscriptionDto create(SubscriptionRequest request) {
         if (request.getType() == null || request.getType().isEmpty()) {
@@ -144,4 +139,9 @@ public class SubscriptionService {
         request.setIceCubes(order.getIceCubes());
         this.orderService.create(request);
     }
+
+    private final OrderService orderService;
+    private final UserService userService;
+    private final SubscriptionRepository subscriptionRepository;
+    private final StripeService stripeService;
 }

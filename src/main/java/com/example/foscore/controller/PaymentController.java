@@ -28,11 +28,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PaymentController {
 
-    private final PaymentService paymentService;
-    private final StripeService stripeService;
-
-    private static final String endpointSecret = "your_webhook_secret";
-
     @PostMapping("/create-payment-intent")
     public Map<String, String> createPaymentIntent(@RequestBody PaymentRequest paymentRequest) {
         try {
@@ -73,4 +68,9 @@ public class PaymentController {
         PaymentDto found = this.paymentService.getById(uuid);
         return new ResponseEntity<>(found, HttpStatus.OK);
     }
+
+    private final PaymentService paymentService;
+    private final StripeService stripeService;
+
+    private static final String endpointSecret = "your_webhook_secret";
 }

@@ -17,8 +17,6 @@ import static com.example.foscore.model.dto.CuisineDto.*;
 @RequiredArgsConstructor
 public class CuisineService {
 
-    private final CuisineRepository cuisineRepository;
-
     public CuisineDto create(CuisineRequest request) {
         Cuisine cuisineToSave = CuisineRequest.toEntity(request);
         Cuisine createdCuisine = this.cuisineRepository.save(cuisineToSave);
@@ -56,4 +54,6 @@ public class CuisineService {
     public void deleteById(Long id) {
         this.cuisineRepository.deleteById(id);
     }
+
+    private final CuisineRepository cuisineRepository;
 }

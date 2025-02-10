@@ -28,12 +28,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @RequiredArgsConstructor
 public class OrderService {
 
-    private final OrderRepository orderRepository;
-    private final MealService mealService;
-    private final DessertService dessertService;
-    private final DrinkService drinkService;
-    private final KafkaProducerService kafkaProducerService;
-
     @Transactional
     public OrderDto create(OrderRequest request) {
         Order orderToSave = OrderRequest.toEntity(request);
@@ -106,4 +100,10 @@ public class OrderService {
     public void deleteById(Long id) {
         this.orderRepository.deleteById(id);
     }
+
+    private final OrderRepository orderRepository;
+    private final MealService mealService;
+    private final DessertService dessertService;
+    private final DrinkService drinkService;
+    private final KafkaProducerService kafkaProducerService;
 }

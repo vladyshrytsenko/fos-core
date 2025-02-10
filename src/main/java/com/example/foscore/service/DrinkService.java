@@ -17,9 +17,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DrinkService {
 
-    private final DrinkRepository drinkRepository;
-    private final StripeService stripeService;
-
     public DrinkDto create(DrinkRequest request) {
         Drink drinkToSave = DrinkRequest.toEntity(request);
         Drink createdDrink = this.drinkRepository.save(drinkToSave);
@@ -64,4 +61,7 @@ public class DrinkService {
     public void deleteById(Long id) {
         this.drinkRepository.deleteById(id);
     }
+
+    private final DrinkRepository drinkRepository;
+    private final StripeService stripeService;
 }

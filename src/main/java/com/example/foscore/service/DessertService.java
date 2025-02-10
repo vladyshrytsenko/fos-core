@@ -19,9 +19,6 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @RequiredArgsConstructor
 public class DessertService {
 
-    private final DessertRepository dessertRepository;
-    private final StripeService stripeService;
-
     @Transactional
     public DessertDto create(DessertRequest request) {
         Dessert dessertToSave = DessertRequest.toEntity(request);
@@ -70,4 +67,7 @@ public class DessertService {
     public void deleteById(Long id) {
         this.dessertRepository.deleteById(id);
     }
+
+    private final DessertRepository dessertRepository;
+    private final StripeService stripeService;
 }
