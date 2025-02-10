@@ -3,6 +3,7 @@ create table orders(
     id int auto_increment primary key,
     total_price float not null,
     created_at timestamp default current_timestamp,
+    created_by int not null,
     updated_at timestamp default current_timestamp,
     deleted_at timestamp default current_timestamp,
     is_deleted boolean default false

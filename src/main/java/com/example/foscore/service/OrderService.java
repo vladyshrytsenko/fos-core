@@ -18,6 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -86,6 +89,18 @@ public class OrderService {
 
     public Page<Order> findAll(Pageable pageable) {
         return this.orderRepository.findAll(pageable);
+    }
+
+    public List<Order> getOrdersForCurrentMonth(Long createdBy) {
+        LocalDateTime startOfMonth = LocalDateTime.now()
+            .withDayOfMonth(1).toLocalDate()
+            .atStartOfDay();
+
+        return this.orderRepository.findAllByCreatedByAndDateRange(
+            createdBy,
+            startOfMonth,
+            LocalDateTime.now()
+        );
     }
 
     public void deleteById(Long id) {
