@@ -4,7 +4,6 @@ import com.example.foscore.model.dto.OrderDto;
 import com.example.foscore.model.entity.Order;
 import com.example.foscore.model.request.OrderRequest;
 import com.example.foscore.service.OrderService;
-import com.example.foscore.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,9 +30,10 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderDto> create(
+        @RequestHeader("Authorization") String authHeader,
         @RequestBody OrderRequest request
     ) {
-        OrderDto created = this.orderService.create(request);
+        OrderDto created = this.orderService.create(authHeader, request);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
@@ -60,7 +61,6 @@ public class OrderController {
     }
 
     private final OrderService orderService;
-    private final PaymentService paymentService;
 
     @Value("${stripe.api.secret-key}")
     private String stripeSecretKey;

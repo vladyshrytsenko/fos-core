@@ -1,7 +1,7 @@
 package com.example.foscore.service;
 
-import com.example.fosauth.model.entity.User;
-import com.example.fosauth.service.UserService;
+import com.example.foscore.controller.feign.UserServiceClient;
+import com.example.foscore.model.dto.UserDto;
 import com.example.foscore.model.entity.Order;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -33,7 +34,9 @@ import static java.lang.String.*;
 public class ReportService {
 
     @Async("taskExecutor")
-    public byte[] makeReport() {
+    public CompletableFuture<byte[]> makeReport() {
+        List<UserDto> users = this.userServiceClient.getAllUsers();
+
         Document document = new Document();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -41,17 +44,17 @@ public class ReportService {
             PdfWriter.getInstance(document, outputStream);
             document.open();
 
-            this.generatePdf(document);
+            this.generatePdf(users, document);
 
             document.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return outputStream.toByteArray();
+        return CompletableFuture.completedFuture( outputStream.toByteArray() );
     }
 
-    private void generatePdf(Document document) throws DocumentException {
+    private void generatePdf(List<UserDto> users, Document document) throws DocumentException {
         Paragraph preface = new Paragraph();
 
         preface.add(new Paragraph("FOS", catFont));
@@ -66,14 +69,12 @@ public class ReportService {
         document.add(Chunk.NEWLINE);
         document.add(preface);
 
-        PdfPTable table = this.createTable();
+        PdfPTable table = this.createTable(users);
         document.add(table);
     }
 
-    private PdfPTable createTable() {
-        List<User> topTenUsers = this.userService.getTopTenUsers();
-
-        PdfPTable table = new PdfPTable(3);
+    private PdfPTable createTable(List<UserDto> users) {
+        PdfPTable table = new PdfPTable(4);
 
         PdfPCell usernameCell = new PdfPCell(new Phrase("username"));
         usernameCell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -87,16 +88,16 @@ public class ReportService {
         avgCostPerMonth.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(avgCostPerMonth);
 
-//        PdfPCell percentOfTotalOrders = new PdfPCell(new Phrase("% of orders"));
-//        percentOfTotalOrders.setHorizontalAlignment(Element.ALIGN_CENTER);
-//        table.addCell(percentOfTotalOrders);
+        PdfPCell percentOfAllOrders = new PdfPCell(new Phrase("% of all orders"));
+        percentOfAllOrders.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(percentOfAllOrders);
 
         table.setHeaderRows(1);
 
         try (ExecutorService executorService = Executors.newFixedThreadPool(5)) {
             List<Future<List<String>>> futures = new ArrayList<>();
 
-            for (User user : topTenUsers) {
+            for (UserDto user : users) {
                 futures.add(
                     executorService.submit(() -> this.processUserOrders(user))
                 );
@@ -117,24 +118,29 @@ public class ReportService {
     }
 
     @Transactional(readOnly = true)
-    private List<String> processUserOrders(User user) {
-        List<Order> orderList = this.orderService.getOrdersForCurrentMonth(user.getId());
+    private List<String> processUserOrders(UserDto user) {
+        Long userId = user.getId();
+        String username = user.getUsername();
 
-        double ordersCost = orderList.stream()
+        List<Order> ordersByUserId = this.orderService.getOrdersForCurrentMonth(userId);
+        long countForCurrentMonth = this.orderService.getOrdersCountForCurrentMonth();
+
+        double ordersCost = ordersByUserId.stream()
             .mapToDouble(Order::getTotalPrice)
             .sum();
 
-        int ordersSize = orderList.size();
-        double avgCost = ordersSize == 0 ? 0 : (ordersCost / ordersSize);
+        int ordersByUserIdSize = ordersByUserId.size();
+        double avgCost = ordersByUserIdSize == 0 ? 0 : (ordersCost / ordersByUserIdSize);
 
         return List.of(
-            user.getUsername(),
-            valueOf(ordersSize),
-            format("%.2f", avgCost)
+            username,
+            String.valueOf(ordersByUserIdSize),
+            format("%.2f", avgCost),
+            String.valueOf((ordersByUserIdSize / countForCurrentMonth) * 100).concat("%")
         );
     }
 
-    private final UserService userService;
+    private final UserServiceClient userServiceClient;
     private final OrderService orderService;
 
     private static final Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD);

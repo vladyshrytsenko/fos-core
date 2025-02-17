@@ -1,8 +1,8 @@
 package com.example.foscore.service;
 
-import com.example.fosauth.model.dto.UserDto;
-import com.example.fosauth.model.entity.User;
-import com.example.fosauth.service.UserService;
+//import com.example.fosauth.model.dto.UserDto;
+//import com.example.fosauth.model.entity.User;
+//import com.example.fosauth.service.UserService;
 import com.example.foscore.model.dto.DessertDto;
 import com.example.foscore.model.dto.DrinkDto;
 import com.example.foscore.model.dto.MealDto;
@@ -14,36 +14,42 @@ import com.example.foscore.model.enums.SubscriptionType;
 import com.example.foscore.model.request.OrderRequest;
 import com.example.foscore.model.request.SubscriptionRequest;
 import com.example.foscore.repository.SubscriptionRepository;
+import com.example.foscore.util.JwtParser;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Price;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.util.Map;
 import java.util.Optional;
+
+//import static com.example.fosauth.model.dto.UserDto.*;
 
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
 
     @Transactional
-    public SubscriptionDto create(SubscriptionRequest request) {
+    public SubscriptionDto create(String token, SubscriptionRequest request) {
+        Claims claims = JwtParser.extractAllClaims(token);
+        String username = claims.get("sub").toString();
+        String email = claims.get("email").toString();
+
         if (request.getType() == null || request.getType().isEmpty()) {
             throw new RuntimeException("Subscription type should not be blank");
         }
 
         Subscription subscriptionToSave = SubscriptionRequest.toEntity(request);
 
-        UserDto currentUser = this.userService.getCurrentUser();
-        User user = UserDto.toEntity(currentUser);
-
         OrderDto orderById = this.orderService.getById(request.getOrderId());
         Order order = OrderDto.toEntity(orderById);
         subscriptionToSave.setOrder(order);
 
-        String customerId = this.stripeService.createCustomer(user.getEmail(), user.getUsername());
+        String customerId = this.stripeService.createCustomer(email, username);
         subscriptionToSave.setCustomerId(customerId);
 
         Subscription createdSubscription = this.subscriptionRepository.save(subscriptionToSave);
@@ -137,11 +143,13 @@ public class SubscriptionService {
         }
         request.setLemon(order.getLemon());
         request.setIceCubes(order.getIceCubes());
-        this.orderService.create(request);
+
+//        UserDto currentUser = this.userService.getCurrentUser();
+//        this.orderService.create(toEntity(currentUser), request);
     }
 
     private final OrderService orderService;
-    private final UserService userService;
+//    private final UserService userService;
     private final SubscriptionRepository subscriptionRepository;
     private final StripeService stripeService;
 }

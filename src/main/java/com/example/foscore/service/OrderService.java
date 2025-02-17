@@ -12,6 +12,8 @@ import com.example.foscore.model.enums.PaymentStatus;
 import com.example.foscore.model.request.OrderRequest;
 import com.example.foscore.repository.OrderRepository;
 import com.example.foscore.service.kafka.KafkaProducerService;
+import com.example.foscore.util.JwtParser;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static java.lang.Long.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -29,7 +32,11 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class OrderService {
 
     @Transactional
-    public OrderDto create(OrderRequest request) {
+    public OrderDto create(String token, OrderRequest request) {
+        Claims claims = JwtParser.extractAllClaims(token);
+
+        String currentUserId = claims.get("userId").toString();
+
         Order orderToSave = OrderRequest.toEntity(request);
 
         if (isBlank(request.getMealName()) && isBlank(request.getDessertName())) {
@@ -69,6 +76,7 @@ public class OrderService {
 
         Payment paymentEntity = PaymentDto.toEntity(payment);
         orderToSave.setPayment(paymentEntity);
+        orderToSave.setCreatedBy( valueOf(currentUserId) );
 
         Order createdOrder = this.orderRepository.save(orderToSave);
         return OrderDto.toDto(createdOrder);
@@ -92,6 +100,17 @@ public class OrderService {
 
         return this.orderRepository.findAllByCreatedByAndDateRange(
             createdBy,
+            startOfMonth,
+            LocalDateTime.now()
+        );
+    }
+
+    public long getOrdersCountForCurrentMonth() {
+        LocalDateTime startOfMonth = LocalDateTime.now()
+            .withDayOfMonth(1).toLocalDate()
+            .atStartOfDay();
+
+        return this.orderRepository.countAllByDateRange(
             startOfMonth,
             LocalDateTime.now()
         );

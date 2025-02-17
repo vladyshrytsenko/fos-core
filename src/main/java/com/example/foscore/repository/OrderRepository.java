@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    @Query("SELECT o FROM Order o WHERE o.createdBy = :createdBy " +
+    @Query("SELECT o FROM orders o WHERE o.createdBy = :createdBy " +
            "AND o.createdAt BETWEEN :startDate AND :endDate"
     )
     List<Order> findAllByCreatedByAndDateRange(
@@ -21,4 +21,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         @Param("endDate") LocalDateTime endDate
     );
 
+    @Query("SELECT COUNT(o) FROM orders o WHERE o.createdAt BETWEEN :startDate AND :endDate")
+    long countAllByDateRange(
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate
+    );
 }
