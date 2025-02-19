@@ -4,6 +4,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,15 +26,15 @@ public class Order extends BaseEntity {
     @Column(name = "total_price")
     private Float totalPrice;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "dessert_id", referencedColumnName = "id")
     private Dessert dessert;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "meal_id", referencedColumnName = "id")
     private Meal meal;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "drink_id", referencedColumnName = "id")
     private Drink drink;
 

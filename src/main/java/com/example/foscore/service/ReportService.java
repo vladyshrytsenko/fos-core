@@ -129,7 +129,7 @@ public class ReportService {
             .mapToDouble(Order::getTotalPrice)
             .sum();
 
-        int ordersByUserIdSize = ordersByUserId.size();
+        float ordersByUserIdSize = ordersByUserId.size();
         double avgCost = ordersByUserIdSize == 0 ? 0 : (ordersCost / ordersByUserIdSize);
 
         return List.of(

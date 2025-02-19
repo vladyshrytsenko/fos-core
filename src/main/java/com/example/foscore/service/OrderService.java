@@ -1,6 +1,7 @@
 package com.example.foscore.service;
 
 import com.example.foscore.exception.EntityNotFoundException;
+import com.example.foscore.model.User;
 import com.example.foscore.model.dto.OrderDto;
 import com.example.foscore.model.dto.PaymentDto;
 import com.example.foscore.model.entity.Dessert;
@@ -12,8 +13,6 @@ import com.example.foscore.model.enums.PaymentStatus;
 import com.example.foscore.model.request.OrderRequest;
 import com.example.foscore.repository.OrderRepository;
 import com.example.foscore.service.kafka.KafkaProducerService;
-import com.example.foscore.util.JwtParser;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,11 +31,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class OrderService {
 
     @Transactional
-    public OrderDto create(String token, OrderRequest request) {
-        Claims claims = JwtParser.extractAllClaims(token);
-
-        String currentUserId = claims.get("userId").toString();
-
+    public OrderDto create(User user, OrderRequest request) {
         Order orderToSave = OrderRequest.toEntity(request);
 
         if (isBlank(request.getMealName()) && isBlank(request.getDessertName())) {
@@ -76,7 +71,7 @@ public class OrderService {
 
         Payment paymentEntity = PaymentDto.toEntity(payment);
         orderToSave.setPayment(paymentEntity);
-        orderToSave.setCreatedBy( valueOf(currentUserId) );
+        orderToSave.setCreatedBy(user.getId());
 
         Order createdOrder = this.orderRepository.save(orderToSave);
         return OrderDto.toDto(createdOrder);

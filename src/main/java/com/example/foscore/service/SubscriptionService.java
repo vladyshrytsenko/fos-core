@@ -1,8 +1,6 @@
 package com.example.foscore.service;
 
-//import com.example.fosauth.model.dto.UserDto;
-//import com.example.fosauth.model.entity.User;
-//import com.example.fosauth.service.UserService;
+import com.example.foscore.model.User;
 import com.example.foscore.model.dto.DessertDto;
 import com.example.foscore.model.dto.DrinkDto;
 import com.example.foscore.model.dto.MealDto;
@@ -14,31 +12,21 @@ import com.example.foscore.model.enums.SubscriptionType;
 import com.example.foscore.model.request.OrderRequest;
 import com.example.foscore.model.request.SubscriptionRequest;
 import com.example.foscore.repository.SubscriptionRepository;
-import com.example.foscore.util.JwtParser;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Price;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
-import java.util.Map;
 import java.util.Optional;
-
-//import static com.example.fosauth.model.dto.UserDto.*;
 
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
 
     @Transactional
-    public SubscriptionDto create(String token, SubscriptionRequest request) {
-        Claims claims = JwtParser.extractAllClaims(token);
-        String username = claims.get("sub").toString();
-        String email = claims.get("email").toString();
-
+    public SubscriptionDto create(User user, SubscriptionRequest request) {
         if (request.getType() == null || request.getType().isEmpty()) {
             throw new RuntimeException("Subscription type should not be blank");
         }
@@ -49,7 +37,7 @@ public class SubscriptionService {
         Order order = OrderDto.toEntity(orderById);
         subscriptionToSave.setOrder(order);
 
-        String customerId = this.stripeService.createCustomer(email, username);
+        String customerId = this.stripeService.createCustomer(user.getEmail(), user.getUsername());
         subscriptionToSave.setCustomerId(customerId);
 
         Subscription createdSubscription = this.subscriptionRepository.save(subscriptionToSave);
