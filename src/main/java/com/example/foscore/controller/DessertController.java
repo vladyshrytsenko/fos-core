@@ -53,6 +53,12 @@ public class DessertController {
         return new ResponseEntity<>(found, HttpStatus.OK);
     }
 
+    @GetMapping("/searchBy")
+    public ResponseEntity<DessertDto> getByName(@RequestParam String name) {
+        DessertDto found = this.dessertService.getByName(name);
+        return new ResponseEntity<>(found, HttpStatus.OK);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<DessertDto> updateById(
         @PathVariable Long id,

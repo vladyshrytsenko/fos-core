@@ -53,6 +53,12 @@ public class MealController {
         return new ResponseEntity<>(found, HttpStatus.OK);
     }
 
+    @GetMapping("/searchBy")
+    public ResponseEntity<MealDto> getByName(@RequestParam String name) {
+        MealDto found = this.mealService.getByName(name);
+        return new ResponseEntity<>(found, HttpStatus.OK);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<MealDto> updateById(
         @PathVariable Long id,

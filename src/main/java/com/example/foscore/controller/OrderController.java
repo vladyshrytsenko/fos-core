@@ -1,6 +1,5 @@
 package com.example.foscore.controller;
 
-import com.example.foscore.model.User;
 import com.example.foscore.model.dto.OrderDto;
 import com.example.foscore.model.entity.Order;
 import com.example.foscore.model.request.OrderRequest;
@@ -12,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,10 +31,14 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderDto> create(
-        @AuthenticationPrincipal User principal,
-        @RequestBody OrderRequest request
-    ) {
-        OrderDto created = this.orderService.create(principal, request);
+        @AuthenticationPrincipal Jwt jwt,
+        @RequestBody OrderRequest request) {
+        if (jwt == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        long userId = jwt.getClaim("user_id");
+        OrderDto created = this.orderService.create(userId, request);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 

@@ -13,6 +13,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -22,6 +25,7 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(HttpMethod.POST,
@@ -29,29 +33,27 @@ public class WebSecurityConfig {
                     "/api/desserts",
                     "/api/drinks",
                     "/api/meals",
-                    "/api/reports").hasAnyAuthority("ADMIN")
+                    "/api/reports").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT,
                     "/api/cuisines/**",
                     "/api/desserts/**",
                     "/api/drinks/**",
-                    "/api/meals/**").hasAnyAuthority("ADMIN")
+                    "/api/meals/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE,
                     "/api/cuisines/**",
                     "/api/desserts/**",
                     "/api/drinks/**",
                     "/api/meals/**",
-                    "/api/orders/**").hasAnyAuthority("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/**", "/payment**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/orders").permitAll()
+                    "/api/orders/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/orders").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/api/payments/**").hasAnyRole("USER", "ADMIN")
 
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt
-                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                )
+                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
             );
-
         return http.build();
     }
 
@@ -66,11 +68,20 @@ public class WebSecurityConfig {
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
-
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("role");
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
-
         return jwtAuthenticationConverter;
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOrigin("http://localhost:4200");
+        config.addAllowedMethod("*");
+        config.addAllowedHeader("*");
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }

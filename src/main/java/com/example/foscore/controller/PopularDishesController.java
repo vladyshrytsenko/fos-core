@@ -1,22 +1,23 @@
 package com.example.foscore.controller;
 
-import com.example.foscore.service.kafka.KafkaConsumerService;
+import com.example.foscore.service.rabbitmq.PopularDishesConsumer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/popular-dishes")
-public class DishStatisticController {
+@RequestMapping("/api/popular")
+public class PopularDishesController {
 
     @GetMapping
-    public Map<String, Integer> getPopularDishes() {
-        return kafkaConsumerService.getDishPopularity();
+    public Map<String, Set<String>> getPopularDishes() {
+        return popularDishesConsumer.getPopularDishesMap();
     }
 
-    private final KafkaConsumerService kafkaConsumerService;
+    private final PopularDishesConsumer popularDishesConsumer;
 }
-

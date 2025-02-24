@@ -26,7 +26,7 @@ import java.util.Optional;
 public class SubscriptionService {
 
     @Transactional
-    public SubscriptionDto create(User user, SubscriptionRequest request) {
+    public SubscriptionDto create(String email, String username, SubscriptionRequest request) {
         if (request.getType() == null || request.getType().isEmpty()) {
             throw new RuntimeException("Subscription type should not be blank");
         }
@@ -37,7 +37,7 @@ public class SubscriptionService {
         Order order = OrderDto.toEntity(orderById);
         subscriptionToSave.setOrder(order);
 
-        String customerId = this.stripeService.createCustomer(user.getEmail(), user.getUsername());
+        String customerId = this.stripeService.createCustomer(email, username);
         subscriptionToSave.setCustomerId(customerId);
 
         Subscription createdSubscription = this.subscriptionRepository.save(subscriptionToSave);

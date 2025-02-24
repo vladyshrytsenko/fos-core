@@ -46,9 +46,11 @@ public class MealService {
         return MealDto.toDto(mealById);
     }
 
-    public Meal getByName(String name) {
-        return this.mealRepository.findByName(name)
+    public MealDto getByName(String name) {
+        Meal mealByName = this.mealRepository.findByName(name)
             .orElseThrow(() -> new EntityNotFoundException(Meal.class));
+
+        return MealDto.toDto(mealByName);
     }
 
     public Page<Meal> findAll(Pageable pageable) {

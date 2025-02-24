@@ -37,9 +37,11 @@ public class DessertService {
         return DessertDto.toDto(dessertById);
     }
 
-    public Dessert getByName(String name) {
-        return this.dessertRepository.findByName(name)
+    public DessertDto getByName(String name) {
+        Dessert dessertByName = this.dessertRepository.findByName(name)
             .orElseThrow(() -> new EntityNotFoundException(Dessert.class));
+
+        return DessertDto.toDto(dessertByName);
     }
 
     public Page<Dessert> findAll(Pageable pageable) {

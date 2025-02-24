@@ -1,18 +1,18 @@
 package com.example.foscore.service;
 
 import com.example.foscore.exception.EntityNotFoundException;
-import com.example.foscore.model.User;
+import com.example.foscore.model.dto.DessertDto;
+import com.example.foscore.model.dto.MealDto;
 import com.example.foscore.model.dto.OrderDto;
 import com.example.foscore.model.dto.PaymentDto;
-import com.example.foscore.model.entity.Dessert;
 import com.example.foscore.model.entity.Drink;
-import com.example.foscore.model.entity.Meal;
 import com.example.foscore.model.entity.Order;
 import com.example.foscore.model.entity.Payment;
+import com.example.foscore.model.enums.DishType;
 import com.example.foscore.model.enums.PaymentStatus;
 import com.example.foscore.model.request.OrderRequest;
 import com.example.foscore.repository.OrderRepository;
-import com.example.foscore.service.kafka.KafkaProducerService;
+import com.example.foscore.service.rabbitmq.PopularDishesProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static java.lang.Long.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -31,26 +30,26 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class OrderService {
 
     @Transactional
-    public OrderDto create(User user, OrderRequest request) {
+    public OrderDto create(long userId, OrderRequest request) {
         Order orderToSave = OrderRequest.toEntity(request);
 
-        if (isBlank(request.getMealName()) && isBlank(request.getDessertName())) {
+        if (isBlank(request.getMealName()) && isBlank(request.getDessertName()) && isBlank(request.getDrinkName())) {
             throw new RuntimeException("Lunch should not be blank");
         }
 
         float totalPrice = 0f;
         if (isNotBlank(request.getMealName())) {
-            Meal mealByName = this.mealService.getByName(request.getMealName());
-            orderToSave.setMeal(mealByName);
-            this.kafkaProducerService.sendOrderEvent(request.getMealName());
+            MealDto mealByName = this.mealService.getByName(request.getMealName());
+            orderToSave.setMeal(MealDto.toEntity(mealByName));
+            this.popularDishesProducer.sendOrderEvent(DishType.MEAL, mealByName.getName());
 
             totalPrice += mealByName.getPrice();
         }
 
         if (isNotBlank(request.getDessertName())) {
-            Dessert dessertByName = this.dessertService.getByName(request.getDessertName());
-            orderToSave.setDessert(dessertByName);
-            this.kafkaProducerService.sendOrderEvent(request.getDessertName());
+            DessertDto dessertByName = this.dessertService.getByName(request.getDessertName());
+            orderToSave.setDessert(DessertDto.toEntity(dessertByName));
+            this.popularDishesProducer.sendOrderEvent(DishType.DESSERT, dessertByName.getName());
 
             totalPrice += dessertByName.getPrice();
         }
@@ -71,7 +70,7 @@ public class OrderService {
 
         Payment paymentEntity = PaymentDto.toEntity(payment);
         orderToSave.setPayment(paymentEntity);
-        orderToSave.setCreatedBy(user.getId());
+        orderToSave.setCreatedBy(userId);
 
         Order createdOrder = this.orderRepository.save(orderToSave);
         return OrderDto.toDto(createdOrder);
@@ -119,5 +118,5 @@ public class OrderService {
     private final MealService mealService;
     private final DessertService dessertService;
     private final DrinkService drinkService;
-    private final KafkaProducerService kafkaProducerService;
+    private final PopularDishesProducer popularDishesProducer;
 }
