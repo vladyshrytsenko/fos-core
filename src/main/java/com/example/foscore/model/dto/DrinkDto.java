@@ -56,4 +56,14 @@ public class DrinkDto {
             .map(DrinkDto::toDto)
             .collect(Collectors.toList());
     }
+
+    public static List<Drink> toEntityList(List<DrinkDto> list) {
+        if (list == null || list.isEmpty()) {
+            return List.of();
+        }
+
+        return list.stream()
+            .map(DrinkDto::toEntity)
+            .collect(Collectors.toList());
+    }
 }

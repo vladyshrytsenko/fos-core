@@ -19,6 +19,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,9 +43,9 @@ public class SubscriptionService {
 
         Subscription createdSubscription = this.subscriptionRepository.save(subscriptionToSave);
 
-        MealDto mealDto = orderById.getMeal();
-        DessertDto dessertDto = orderById.getDessert();
-        DrinkDto drinkDto = orderById.getDrink();
+        List<MealDto> mealDtos = orderById.getMeals();
+        List<DessertDto> dessertDtos = orderById.getDesserts();
+        List<DrinkDto> drinkDtos = orderById.getDrinks();
 
         try {
             this.stripeService.attachTestCardToCustomer(customerId);
@@ -52,7 +53,7 @@ public class SubscriptionService {
             throw new RuntimeException(e);
         }
 
-        if (mealDto != null) {
+        mealDtos.forEach(mealDto -> {
             try {
                 Price priceByProductName = this.stripeService.getPriceByProductName(mealDto.getName());
                 this.stripeService.createSubscription(
@@ -63,9 +64,9 @@ public class SubscriptionService {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }
+        });
 
-        if (dessertDto != null) {
+        dessertDtos.forEach(dessertDto -> {
             try {
                 Price priceByProductName = this.stripeService.getPriceByProductName(dessertDto.getName());
                 this.stripeService.createSubscription(
@@ -76,9 +77,9 @@ public class SubscriptionService {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }
+        });
 
-        if (drinkDto != null) {
+        drinkDtos.forEach(drinkDto -> {
             try {
                 Price priceByProductName = this.stripeService.getPriceByProductName(drinkDto.getName());
                 this.stripeService.createSubscription(
@@ -89,7 +90,7 @@ public class SubscriptionService {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }
+        });
 
         return SubscriptionDto.toDto(createdSubscription);
     }
@@ -120,15 +121,15 @@ public class SubscriptionService {
         Order order = byType.getOrder();
 
         OrderRequest request = new OrderRequest();
-        if (order.getMeal() != null) {
-            request.setMealName(order.getMeal().getName());
-        }
-        if (order.getDessert() != null) {
-            request.setDessertName(order.getDessert().getName());
-        }
-        if (order.getDrink() != null) {
-            request.setDrinkName(order.getDrink().getName());
-        }
+//        if (order.getMeal() != null) {
+//            request.setMealName(order.getMeal().getName());
+//        }
+//        if (order.getDessert() != null) {
+//            request.setDessertName(order.getDessert().getName());
+//        }
+//        if (order.getDrink() != null) {
+//            request.setDrinkName(order.getDrink().getName());
+//        }
         request.setLemon(order.getLemon());
         request.setIceCubes(order.getIceCubes());
 

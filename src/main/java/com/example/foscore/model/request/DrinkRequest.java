@@ -2,7 +2,6 @@ package com.example.foscore.model.request;
 
 import com.example.foscore.model.entity.Drink;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +18,6 @@ public class DrinkRequest {
     private String name;
 
     @NotNull(message = "'price' should not be null")
-    @Positive(message = "'price' should be greater than 0")
     private Float price;
 
     public static Drink toEntity(DrinkRequest request) {

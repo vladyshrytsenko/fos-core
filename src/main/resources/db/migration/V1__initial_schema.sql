@@ -1,6 +1,6 @@
 
 create table orders(
-    id int auto_increment primary key,
+    id serial primary key,
     total_price float not null,
     created_at timestamp default current_timestamp,
     created_by int not null,
@@ -10,7 +10,7 @@ create table orders(
 );
 
 create table drinks(
-    id int auto_increment primary key,
+    id serial primary key,
     name varchar(64) not null,
     price float not null,
     created_at timestamp default current_timestamp,
@@ -20,7 +20,7 @@ create table drinks(
 );
 
 create table cuisines(
-    id int auto_increment primary key,
+    id serial primary key,
     name varchar(64) not null,
     created_at timestamp default current_timestamp,
     updated_at timestamp default current_timestamp,
@@ -29,7 +29,7 @@ create table cuisines(
 );
 
 create table desserts(
-    id int auto_increment primary key,
+    id serial primary key,
     name varchar(64) not null,
     portion_weight float not null,
     created_at timestamp default current_timestamp,
@@ -39,7 +39,7 @@ create table desserts(
 );
 
 create table meals(
-    id int auto_increment primary key,
+    id serial primary key,
     name varchar(64) not null,
     portion_weight float not null,
     cuisine_id int not null,
@@ -57,7 +57,7 @@ CREATE TABLE payments (
 );
 
 create table subscriptions (
-    id int auto_increment primary key,
+    id serial primary key,
     customer_id varchar(64),
     type varchar(20) not null
 );

@@ -66,4 +66,14 @@ public class MealDto {
             .map(MealDto::toDto)
             .collect(Collectors.toList());
     }
+
+    public static List<Meal> toEntityList(List<MealDto> list) {
+        if (list == null || list.isEmpty()) {
+            return List.of();
+        }
+
+        return list.stream()
+            .map(MealDto::toEntity)
+            .collect(Collectors.toList());
+    }
 }

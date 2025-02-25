@@ -34,7 +34,7 @@ public class DrinkService {
         return DrinkDto.toDto(drinkById);
     }
 
-    public Drink getByName(String name) {
+    public Drink getEntityByName(String name) {
         return this.drinkRepository.findByName(name)
             .orElseThrow(() -> new EntityNotFoundException(Drink.class));
     }

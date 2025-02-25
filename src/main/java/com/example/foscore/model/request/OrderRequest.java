@@ -6,15 +6,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class OrderRequest {
 
-    private String mealName;
-    private String dessertName;
-    private String drinkName;
+    private List<String> mealNames;
+    private List<String> dessertNames;
+    private List<String> drinkNames;
     private Boolean iceCubes;
     private Boolean lemon;
 

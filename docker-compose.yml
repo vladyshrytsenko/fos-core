@@ -3,17 +3,36 @@ version: '3.8'
 services:
   app:
     build: .
-    container_name: food-ordering-system
+    container_name: fos-core
     environment:
-      SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb
-      SPRING_DATASOURCE_DRIVERCLASSNAME: org.h2.Driver
-      SPRING_DATASOURCE_USERNAME: sa
-      SPRING_DATASOURCE_PASSWORD: passw0rd
-      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.H2Dialect
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fos-core-db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_H2_CONSOLE_ENABLED: "true"
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_VIRTUAL_HOST: vhost
+      SPRING_RABBITMQ_USERNAME: rab
+      SPRING_RABBITMQ_PASSWORD: 1234
+      SPRING_RABBITMQ_PORT: 5672
     ports:
       - "8080:8080"
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  postgres:
+    image: postgres:15
+    container_name: fos-core-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: fos-core-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - library-network
 
   rabbitmq:
     image: rabbitmq:latest

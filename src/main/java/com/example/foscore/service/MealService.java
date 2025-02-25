@@ -53,6 +53,11 @@ public class MealService {
         return MealDto.toDto(mealByName);
     }
 
+    public Meal getEntityByName(String name) {
+        return this.mealRepository.findByName(name)
+            .orElseThrow(() -> new EntityNotFoundException(Meal.class));
+    }
+
     public Page<Meal> findAll(Pageable pageable) {
         return this.mealRepository.findAll(pageable);
     }

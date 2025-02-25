@@ -59,4 +59,14 @@ public class DessertDto {
             .map(DessertDto::toDto)
             .collect(Collectors.toList());
     }
+
+    public static List<Dessert> toEntityList(List<DessertDto> list) {
+        if (list == null || list.isEmpty()) {
+            return List.of();
+        }
+
+        return list.stream()
+            .map(DessertDto::toEntity)
+            .collect(Collectors.toList());
+    }
 }

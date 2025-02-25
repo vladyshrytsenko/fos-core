@@ -65,12 +65,12 @@ class DrinkServiceTest {
     }
 
     @Test
-    void getByName() {
+    void getEntityByName() {
         Drink drink = MockData.drink();
 
         when(this.drinkRepository.findByName("lemonade")).thenReturn(Optional.of(drink));
 
-        Drink result = this.drinkService.getByName("lemonade");
+        Drink result = this.drinkService.getEntityByName("lemonade");
 
         assertNotNull(result);
         assertEquals("lemonade", result.getName());

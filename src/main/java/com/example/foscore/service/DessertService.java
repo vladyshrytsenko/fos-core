@@ -44,6 +44,11 @@ public class DessertService {
         return DessertDto.toDto(dessertByName);
     }
 
+    public Dessert getEntityByName(String name) {
+        return this.dessertRepository.findByName(name)
+            .orElseThrow(() -> new EntityNotFoundException(Dessert.class));
+    }
+
     public Page<Dessert> findAll(Pageable pageable) {
         return this.dessertRepository.findAll(pageable);
     }

@@ -59,7 +59,7 @@ class OrderServiceTest {
 
         Drink drink = MockData.drink();
 
-        when(this.drinkService.getByName(anyString())).thenReturn(drink);
+        when(this.drinkService.getEntityByName(anyString())).thenReturn(drink);
 
         Meal meal = MockData.meal();
 

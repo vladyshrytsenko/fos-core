@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,9 +21,9 @@ public class OrderDto {
 
     private Long id;
     private Float totalPrice;
-    private DessertDto dessert;
-    private MealDto meal;
-    private DrinkDto drink;
+    private List<DessertDto> desserts;
+    private List<MealDto> meals;
+    private List<DrinkDto> drinks;
     private Boolean iceCubes;
     private Boolean lemon;
     private PaymentDto payment;
@@ -32,27 +33,27 @@ public class OrderDto {
     private LocalDateTime deletedAt;
 
     public static OrderDto toDto(Order entity) {
-        DessertDto dessertDto = null;
-        if (entity.getDessert() != null) {
-            dessertDto = DessertDto.toDto(entity.getDessert());
+        List<DessertDto> dessertDtos = new ArrayList<>();
+        if (entity.getDesserts() != null) {
+            dessertDtos = DessertDto.toDtoList(entity.getDesserts());
         }
-        MealDto mealDto = null;
-        if (entity.getMeal() != null) {
-            mealDto = MealDto.toDto(entity.getMeal());
+        List<MealDto> mealDtos = new ArrayList<>();
+        if (entity.getMeals() != null) {
+            mealDtos = MealDto.toDtoList(entity.getMeals());
         }
 
-        DrinkDto drinkDto = null;
-        if (entity.getDrink() != null) {
-            drinkDto = DrinkDto.toDto(entity.getDrink());
+        List<DrinkDto> drinkDtos = new ArrayList<>();
+        if (entity.getDrinks() != null) {
+            drinkDtos = DrinkDto.toDtoList(entity.getDrinks());
         }
         PaymentDto paymentDto = PaymentDto.toDto(entity.getPayment());
 
         return OrderDto.builder()
             .id(entity.getId())
             .totalPrice(entity.getTotalPrice())
-            .dessert(dessertDto)
-            .meal(mealDto)
-            .drink(drinkDto)
+            .desserts(dessertDtos)
+            .meals(mealDtos)
+            .drinks(drinkDtos)
             .payment(paymentDto)
             .iceCubes(entity.getIceCubes())
             .lemon(entity.getLemon())
@@ -64,17 +65,17 @@ public class OrderDto {
     }
 
     public static Order toEntity(OrderDto dto) {
-        Dessert dessert = DessertDto.toEntity(dto.getDessert());
-        Meal meal = MealDto.toEntity(dto.getMeal());
-        Drink drink = DrinkDto.toEntity(dto.getDrink());
+        List<Dessert> desserts = DessertDto.toEntityList(dto.getDesserts());
+        List<Meal> meals = MealDto.toEntityList(dto.getMeals());
+        List<Drink> drinks = DrinkDto.toEntityList(dto.getDrinks());
         Payment payment = PaymentDto.toEntity(dto.getPayment());
 
         return Order.builder()
             .id(dto.getId())
             .totalPrice(dto.getTotalPrice())
-            .dessert(dessert)
-            .meal(meal)
-            .drink(drink)
+            .desserts(desserts)
+            .meals(meals)
+            .drinks(drinks)
             .payment(payment)
             .iceCubes(dto.getIceCubes())
             .lemon(dto.getLemon())
