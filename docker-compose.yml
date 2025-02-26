@@ -8,12 +8,17 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fos-core-db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: password
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_VIRTUAL_HOST: vhost
       SPRING_RABBITMQ_USERNAME: rab
       SPRING_RABBITMQ_PASSWORD: 1234
       SPRING_RABBITMQ_PORT: 5672
+
+      STRIPE_API_KEY: stripe_api_key
+      STRIPE_API_SECRET_KEY: stripe_secret_key
+
+      JWT_ISSUER-URI: http://localhost:9000
     ports:
       - "8080:8080"
     depends_on:
@@ -31,8 +36,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    networks:
-      - library-network
 
   rabbitmq:
     image: rabbitmq:latest
@@ -46,7 +49,11 @@ services:
       RABBITMQ_DEFAULT_USER_TAGS: administrator
       RABBITMQ_DEFAULT_PERMISSIONS: ".* .* .*"
     volumes:
-      - ./rabbitmq:/var/lib/rabbitmq￼
+      - rabbitmq:/var/lib/rabbitmq￼
     ports:
       - "5672:5672"
       - "15672:15672"
+
+volumes:
+  postgres-data:
+  rabbitmq:
