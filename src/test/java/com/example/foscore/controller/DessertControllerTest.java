@@ -7,16 +7,17 @@ import com.example.foscore.model.request.CuisineRequest;
 import com.example.foscore.model.request.DessertRequest;
 import com.example.foscore.repository.CuisineRepository;
 import com.example.foscore.repository.DessertRepository;
+import com.example.foscore.security.SecurityTestConfig;
 import com.example.foscore.service.CuisineService;
 import com.example.foscore.service.DessertService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -28,28 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = StartupApplicationCore.class)
+@SpringBootTest(classes = { StartupApplicationCore.class, SecurityTestConfig.class })
 @AutoConfigureMockMvc
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class DessertControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private DessertRepository dessertRepository;
-
-    @Autowired
-    private DessertService dessertService;
-
-    @Autowired
-    private CuisineService cuisineService;
-
-    @Autowired
-    private CuisineRepository cuisineRepository;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @BeforeEach
     public void setUp() {
@@ -68,13 +51,18 @@ public class DessertControllerTest {
             setPortionWeight(200);
             setPrice(4f);
         }};
+        String dessertRequestAsString = this.objectMapper.writeValueAsString(dessertRequest);
 
-        String dessertRequestAsString = objectMapper.writeValueAsString(dessertRequest);
-        this.mockMvc.perform(post("/api/desserts")
+        this.mockMvc.perform(
+            post("/api/desserts")
+                .header("Authorization-Test", "X-Authorization-test")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(dessertRequestAsString))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.name").value("Chocolate Cake"));
+                .content(dessertRequestAsString)
+            )
+            .andExpectAll(
+                status().isCreated(),
+                jsonPath("$.name").value("Chocolate Cake")
+            );
 
         List<Dessert> desserts = this.dessertRepository.findAll();
         assertEquals(1, desserts.size());
@@ -90,10 +78,15 @@ public class DessertControllerTest {
         }};
         this.dessertService.create(dessertRequest);
 
-        this.mockMvc.perform(get("/api/desserts"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(1)))
-            .andExpect(jsonPath("$[0].name").value("Chocolate Cake"));
+        this.mockMvc.perform(
+            get("/api/desserts")
+                .header("Authorization-Test", "X-Authorization-test")
+            )
+            .andExpectAll(
+                status().isOk(),
+                jsonPath("$", hasSize(1)),
+                jsonPath("$[0].name").value("Chocolate Cake")
+            );
     }
 
     @Test
@@ -105,9 +98,14 @@ public class DessertControllerTest {
         }};
         DessertDto dessertDto = this.dessertService.create(dessertRequest);
 
-        this.mockMvc.perform(get("/api/desserts/{id}", dessertDto.getId()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("Chocolate Cake"));
+        this.mockMvc.perform(
+            get("/api/desserts/{id}", dessertDto.getId())
+                .header("Authorization-Test", "X-Authorization-test")
+            )
+            .andExpectAll(
+                status().isOk(),
+                jsonPath("$.name").value("Chocolate Cake")
+            );
     }
 
     @Test
@@ -121,13 +119,18 @@ public class DessertControllerTest {
 
         DessertRequest updateRequest = new DessertRequest();
         updateRequest.setName("Vanilla Cake");
-        String updatedRequestAsString = objectMapper.writeValueAsString(updateRequest);
+        String updatedRequestAsString = this.objectMapper.writeValueAsString(updateRequest);
 
-        this.mockMvc.perform(put("/api/desserts/{id}", dessertDto.getId())
+        this.mockMvc.perform(
+            put("/api/desserts/{id}", dessertDto.getId())
+                .header("Authorization-Test", "X-Authorization-test")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(updatedRequestAsString))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("Vanilla Cake"));
+                .content(updatedRequestAsString)
+            )
+            .andExpectAll(
+                status().isOk(),
+                jsonPath("$.name").value("Vanilla Cake")
+            );
 
         Dessert updatedDessert = this.dessertRepository.findById(dessertDto.getId()).orElse(null);
         assertEquals("Vanilla Cake", updatedDessert.getName());
@@ -142,10 +145,31 @@ public class DessertControllerTest {
         }};
         DessertDto dessertDto = this.dessertService.create(dessertRequest);
 
-        this.mockMvc.perform(delete("/api/desserts/{id}", dessertDto.getId()))
+        this.mockMvc.perform(
+            delete("/api/desserts/{id}", dessertDto.getId())
+                .header("Authorization-Test", "X-Authorization-test")
+            )
             .andExpect(status().isNoContent());
 
         Optional<Dessert> byId = this.dessertRepository.findById(dessertDto.getId());
         assertFalse(byId.isPresent());
     }
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private DessertRepository dessertRepository;
+
+    @Autowired
+    private DessertService dessertService;
+
+    @Autowired
+    private CuisineService cuisineService;
+
+    @Autowired
+    private CuisineRepository cuisineRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 }

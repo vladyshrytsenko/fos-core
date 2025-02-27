@@ -7,16 +7,17 @@ import com.example.foscore.model.request.CuisineRequest;
 import com.example.foscore.model.request.MealRequest;
 import com.example.foscore.repository.CuisineRepository;
 import com.example.foscore.repository.MealRepository;
+import com.example.foscore.security.SecurityTestConfig;
 import com.example.foscore.service.CuisineService;
 import com.example.foscore.service.MealService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -31,28 +32,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = StartupApplicationCore.class)
+@SpringBootTest(classes = { StartupApplicationCore.class, SecurityTestConfig.class })
 @AutoConfigureMockMvc
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class MealControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private MealRepository mealRepository;
-
-    @Autowired
-    private MealService mealService;
-
-    @Autowired
-    private CuisineRepository cuisineRepository;
-
-    @Autowired
-    private CuisineService cuisineService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @BeforeEach
     public void setUp() {
@@ -72,12 +55,18 @@ public class MealControllerTest {
             setPortionWeight(100);
             setPrice(3f);
         }};
+        String mealRequestAsString = this.objectMapper.writeValueAsString(request);
 
-        this.mockMvc.perform(post("/api/meals")
+        this.mockMvc.perform(
+            post("/api/meals")
+                .header("Authorization-Test", "X-Authorization-test")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.name").value("Tacos"));
+                .content(mealRequestAsString)
+            )
+            .andExpectAll(
+                status().isCreated(),
+                jsonPath("$.name").value("Tacos")
+            );
 
         List<Meal> meals = this.mealRepository.findAll();
         assertEquals(1, meals.size());
@@ -94,9 +83,14 @@ public class MealControllerTest {
         }};
         this.mealService.create(request);
 
-        this.mockMvc.perform(get("/api/meals"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].name").value("Tacos"));
+        this.mockMvc.perform(
+            get("/api/meals")
+                .header("Authorization-Test", "X-Authorization-test")
+            )
+            .andExpectAll(
+                status().isOk(),
+                jsonPath("$[0].name").value("Tacos")
+            );
     }
 
     @Test
@@ -109,9 +103,14 @@ public class MealControllerTest {
         }};
         MealDto mealDto = this.mealService.create(request);
 
-        this.mockMvc.perform(get("/api/meals/{id}", mealDto.getId()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("Tacos"));
+        this.mockMvc.perform(
+            get("/api/meals/{id}", mealDto.getId())
+                .header("Authorization-Test", "X-Authorization-test")
+            )
+            .andExpectAll(
+                status().isOk(),
+                jsonPath("$.name").value("Tacos")
+            );
     }
 
     @Test
@@ -126,13 +125,18 @@ public class MealControllerTest {
 
         MealRequest updateRequest = new MealRequest();
         updateRequest.setName("Quesadilla");
-        String updatedRequestAsString = objectMapper.writeValueAsString(updateRequest);
+        String updatedRequestAsString = this.objectMapper.writeValueAsString(updateRequest);
 
-        this.mockMvc.perform(put("/api/meals/{id}", mealDto.getId())
+        this.mockMvc.perform(
+            put("/api/meals/{id}", mealDto.getId())
+                .header("Authorization-Test", "X-Authorization-test")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(updatedRequestAsString))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("Quesadilla"));
+                .content(updatedRequestAsString)
+            )
+            .andExpectAll(
+                status().isOk(),
+                jsonPath("$.name").value("Quesadilla")
+            );
 
         Meal updatedMeal = this.mealRepository.findById(mealDto.getId()).orElse(null);
         assertEquals("Quesadilla", updatedMeal.getName());
@@ -148,10 +152,31 @@ public class MealControllerTest {
         }};
         MealDto mealDto = this.mealService.create(request);
 
-        this.mockMvc.perform(delete("/api/meals/{id}", mealDto.getId()))
+        this.mockMvc.perform(
+            delete("/api/meals/{id}", mealDto.getId())
+                .header("Authorization-Test", "X-Authorization-test")
+            )
             .andExpect(status().isNoContent());
 
         Optional<Meal> byId = this.mealRepository.findById(mealDto.getId());
         assertFalse(byId.isPresent());
     }
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private MealRepository mealRepository;
+
+    @Autowired
+    private MealService mealService;
+
+    @Autowired
+    private CuisineRepository cuisineRepository;
+
+    @Autowired
+    private CuisineService cuisineService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 }

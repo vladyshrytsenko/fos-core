@@ -5,6 +5,8 @@ import com.example.foscore.model.entity.Dessert;
 import com.example.foscore.model.entity.Drink;
 import com.example.foscore.model.entity.Meal;
 import com.example.foscore.model.entity.Order;
+import com.example.foscore.model.entity.Payment;
+import com.example.foscore.model.enums.PaymentStatus;
 import com.example.foscore.model.request.CuisineRequest;
 import com.example.foscore.model.request.DessertRequest;
 import com.example.foscore.model.request.DrinkRequest;
@@ -194,9 +196,9 @@ public class MockData {
 
     public static OrderRequest orderRequest() {
         return new OrderRequest() {{
-            setMealName("meal_mock");
-            setDessertName("dessert_mock");
-            setDrinkName("drink_mock");
+            setMealNames(List.of("meal_mock"));
+            setDessertNames(List.of("dessert_mock"));
+            setDrinkNames(List.of("drink_mock"));
             setIceCubes(true);
         }};
     }
@@ -204,33 +206,42 @@ public class MockData {
     public static Order order() {
         return new Order() {{
             setId(1L);
-            setMeal(meal());
-            setDessert(dessert());
-            setDrink(drink());
+            setMeals(List.of(meal()));
+            setDesserts(List.of(dessert()));
+            setDrinks(List.of(drink()));
             setIceCubes(true);
             setCreatedAt(LocalDateTime.now());
+            setPayment(payment());
         }};
     }
 
     public static List<Order> orderList() {
         Order order1 = new Order() {{
             setId(1L);
-            setMeal(mealList().getFirst());
-            setDessert(dessertList().getFirst());
-            setDrink(drinkList().getFirst());
+            setMeals(mealList());
+            setDesserts(dessertList());
+            setDrinks(drinkList());
             setIceCubes(true);
             setCreatedAt(LocalDateTime.now());
         }};
 
         Order order2 = new Order() {{
             setId(2L);
-            setMeal(mealList().getLast());
-            setDessert(dessertList().getLast());
-            setDrink(drinkList().getLast());
+            setMeals(mealList());
+            setDesserts(dessertList());
+            setDrinks(drinkList());
             setIceCubes(false);
             setCreatedAt(LocalDateTime.now());
         }};
 
         return List.of(order1, order2);
+    }
+
+    public static Payment payment() {
+        return Payment.builder()
+            .id("1")
+            .totalPrice(10f)
+            .status(PaymentStatus.PAID)
+            .build();
     }
 }

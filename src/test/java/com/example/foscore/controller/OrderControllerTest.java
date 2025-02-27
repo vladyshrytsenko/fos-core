@@ -13,6 +13,7 @@ import com.example.foscore.repository.DessertRepository;
 import com.example.foscore.repository.DrinkRepository;
 import com.example.foscore.repository.MealRepository;
 import com.example.foscore.repository.OrderRepository;
+import com.example.foscore.security.SecurityTestConfig;
 import com.example.foscore.service.CuisineService;
 import com.example.foscore.service.DessertService;
 import com.example.foscore.service.DrinkService;
@@ -22,62 +23,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = StartupApplicationCore.class)
+@SpringBootTest(classes = { StartupApplicationCore.class, SecurityTestConfig.class })
 @AutoConfigureMockMvc
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class OrderControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private DrinkRepository drinkRepository;
-
-    @Autowired
-    private CuisineRepository cuisineRepository;
-
-    @Autowired
-    private CuisineService cuisineService;
-
-    @Autowired
-    private DrinkService drinkService;
-
-    @Autowired
-    private DessertRepository dessertRepository;
-
-    @Autowired
-    private DessertService dessertService;
-
-    @Autowired
-    private MealRepository mealRepository;
-
-    @Autowired
-    private MealService mealService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @BeforeEach
     public void setUp() {
@@ -115,14 +78,18 @@ public class OrderControllerTest {
     @Test
     public void testCreateOrder() throws Exception {
         OrderRequest request = new OrderRequest() {{
-            setDrinkName("Lemonade");
-            setDessertName("Chocolate Cake");
-            setMealName("Tacos");
+            setDrinkNames(List.of("Lemonade"));
+            setDessertNames(List.of("Chocolate Cake"));
+            setMealNames(List.of("Tacos"));
         }};
+        String orderRequestAsString = this.objectMapper.writeValueAsString(request);
 
-        this.mockMvc.perform(post("/api/orders")
+        this.mockMvc.perform(
+            post("/api/orders")
+                .header("Authorization-Test", "X-Authorization-test")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(orderRequestAsString)
+            )
             .andExpect(status().isOk());
 
         List<Order> orders = this.orderRepository.findAll();
@@ -133,29 +100,39 @@ public class OrderControllerTest {
     @Test
     public void testFindAllOrders() throws Exception {
         OrderRequest request = new OrderRequest() {{
-            setDrinkName("Lemonade");
-            setDessertName("Chocolate Cake");
-            setMealName("Tacos");
+            setDrinkNames(List.of("Lemonade"));
+            setDessertNames(List.of("Chocolate Cake"));
+            setMealNames(List.of("Tacos"));
         }};
-        this.orderService.create(request);
+        this.orderService.create(1L, request);
 
-        this.mockMvc.perform(get("/api/orders"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].totalPrice").value(8f));
+        this.mockMvc.perform(
+            get("/api/orders")
+                .header("Authorization-Test", "X-Authorization-test")
+            )
+            .andExpectAll(
+                status().isOk(),
+                jsonPath("$[0].totalPrice").value(8f)
+            );
     }
 
     @Test
     public void testGetOrderById() throws Exception {
         OrderRequest request = new OrderRequest() {{
-            setDrinkName("Lemonade");
-            setDessertName("Chocolate Cake");
-            setMealName("Tacos");
+            setDrinkNames(List.of("Lemonade"));
+            setDessertNames(List.of("Chocolate Cake"));
+            setMealNames(List.of("Tacos"));
         }};
-        OrderDto orderDto = this.orderService.create(request);
+        OrderDto orderDto = this.orderService.create(1L, request);
 
-        this.mockMvc.perform(get("/api/orders/{id}", orderDto.getId()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.totalPrice").value(8f));
+        this.mockMvc.perform(
+            get("/api/orders/{id}", orderDto.getId())
+                .header("Authorization-Test", "X-Authorization-test")
+            )
+            .andExpectAll(
+                status().isOk(),
+                jsonPath("$.totalPrice").value(8f)
+            );
     }
 
 //    @Test
@@ -173,4 +150,40 @@ public class OrderControllerTest {
 //        Optional<Order> byId = this.orderRepository.findById(orderDto.getId());
 //        assertFalse(byId.isPresent());
 //    }
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private DrinkRepository drinkRepository;
+
+    @Autowired
+    private CuisineRepository cuisineRepository;
+
+    @Autowired
+    private CuisineService cuisineService;
+
+    @Autowired
+    private DrinkService drinkService;
+
+    @Autowired
+    private DessertRepository dessertRepository;
+
+    @Autowired
+    private DessertService dessertService;
+
+    @Autowired
+    private MealRepository mealRepository;
+
+    @Autowired
+    private MealService mealService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 }

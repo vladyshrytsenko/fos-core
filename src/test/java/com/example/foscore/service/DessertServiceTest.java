@@ -5,10 +5,12 @@ import com.example.foscore.model.dto.DessertDto;
 import com.example.foscore.model.entity.Dessert;
 import com.example.foscore.model.request.DessertRequest;
 import com.example.foscore.repository.DessertRepository;
+import com.stripe.model.Product;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -35,6 +37,9 @@ class DessertServiceTest {
     @Mock
     private CuisineService cuisineService;
 
+    @Mock
+    private StripeService stripeService;
+
     @InjectMocks
     private DessertService dessertService;
 
@@ -46,7 +51,10 @@ class DessertServiceTest {
         entity.setCreatedAt(LocalDateTime.now());
 
         Dessert savedDessert = MockData.dessert();
+        Product createdProduct = Mockito.mock(Product.class);
 
+        when(this.stripeService.createProduct(savedDessert.getName())).thenReturn(createdProduct);
+        when(createdProduct.getId()).thenReturn("product_id");
         when(this.dessertRepository.save(any(Dessert.class))).thenReturn(savedDessert);
 
         DessertDto result = this.dessertService.create(request);
@@ -75,7 +83,7 @@ class DessertServiceTest {
 
         when(this.dessertRepository.findByName(anyString())).thenReturn(Optional.of(dessert));
 
-        Dessert result = this.dessertService.getByName("dessert_mock");
+        DessertDto result = this.dessertService.getByName("dessert_mock");
 
         assertNotNull(result);
         assertEquals("dessert_mock", result.getName());

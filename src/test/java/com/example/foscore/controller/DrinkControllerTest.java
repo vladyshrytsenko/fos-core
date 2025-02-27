@@ -5,15 +5,16 @@ import com.example.foscore.model.dto.DrinkDto;
 import com.example.foscore.model.entity.Drink;
 import com.example.foscore.model.request.DrinkRequest;
 import com.example.foscore.repository.DrinkRepository;
+import com.example.foscore.security.SecurityTestConfig;
 import com.example.foscore.service.DrinkService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -28,22 +29,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = StartupApplicationCore.class)
+@SpringBootTest(classes = { StartupApplicationCore.class, SecurityTestConfig.class })
 @AutoConfigureMockMvc
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestPropertySource(locations = "classpath:application-test.properties")
 public class DrinkControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private DrinkRepository drinkRepository;
-
-    @Autowired
-    private DrinkService drinkService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @BeforeEach
     public void setUp() {
@@ -56,11 +45,16 @@ public class DrinkControllerTest {
         request.setName("Lemonade");
         request.setPrice(1f);
 
-        this.mockMvc.perform(post("/api/drinks")
+        this.mockMvc.perform(
+            post("/api/drinks")
+                .header("Authorization-Test", "X-Authorization-test")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.name").value("Lemonade"));
+                .content(objectMapper.writeValueAsString(request))
+            )
+            .andExpectAll(
+                status().isCreated(),
+                jsonPath("$.name").value("Lemonade")
+            );
 
         List<Drink> drinks = this.drinkRepository.findAll();
         assertEquals(1, drinks.size());
@@ -74,9 +68,14 @@ public class DrinkControllerTest {
         request.setPrice(1f);
         this.drinkService.create(request);
 
-        this.mockMvc.perform(get("/api/drinks"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].name").value("Lemonade"));
+        this.mockMvc.perform(
+            get("/api/drinks")
+                .header("Authorization-Test", "X-Authorization-test")
+            )
+            .andExpectAll(
+                status().isOk(),
+                jsonPath("$[0].name").value("Lemonade")
+            );
     }
 
     @Test
@@ -86,9 +85,14 @@ public class DrinkControllerTest {
         request.setPrice(1f);
         DrinkDto drinkDto = this.drinkService.create(request);
 
-        this.mockMvc.perform(get("/api/drinks/{id}", drinkDto.getId()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("Lemonade"));
+        this.mockMvc.perform(
+            get("/api/drinks/{id}", drinkDto.getId())
+                .header("Authorization-Test", "X-Authorization-test")
+            )
+            .andExpectAll(
+                status().isOk(),
+                jsonPath("$.name").value("Lemonade")
+            );
     }
 
     @Test
@@ -100,13 +104,18 @@ public class DrinkControllerTest {
 
         DrinkRequest updateRequest = new DrinkRequest();
         updateRequest.setName("Iced Tea");
-        String updatedRequestAsString = objectMapper.writeValueAsString(updateRequest);
+        String updatedRequestAsString = this.objectMapper.writeValueAsString(updateRequest);
 
-        this.mockMvc.perform(put("/api/drinks/{id}", drinkDto.getId())
+        this.mockMvc.perform(
+            put("/api/drinks/{id}", drinkDto.getId())
+                .header("Authorization-Test", "X-Authorization-test")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(updatedRequestAsString))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("Iced Tea"));
+                .content(updatedRequestAsString)
+            )
+            .andExpectAll(
+                status().isOk(),
+                jsonPath("$.name").value("Iced Tea")
+            );
 
         Drink updatedDrink = this.drinkRepository.findById(drinkDto.getId()).orElse(null);
         assertEquals("Iced Tea", updatedDrink.getName());
@@ -119,11 +128,26 @@ public class DrinkControllerTest {
         request.setPrice(1f);
         DrinkDto drinkDto = this.drinkService.create(request);
 
-        this.mockMvc.perform(delete("/api/drinks/{id}", drinkDto.getId()))
+        this.mockMvc.perform(
+            delete("/api/drinks/{id}", drinkDto.getId())
+                .header("Authorization-Test", "X-Authorization-test")
+            )
             .andExpect(status().isNoContent());
 
         Optional<Drink> byId = this.drinkRepository.findById(drinkDto.getId());
         assertFalse(byId.isPresent());
     }
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private DrinkRepository drinkRepository;
+
+    @Autowired
+    private DrinkService drinkService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 }
 

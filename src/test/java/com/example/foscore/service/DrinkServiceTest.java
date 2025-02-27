@@ -5,10 +5,12 @@ import com.example.foscore.model.dto.DrinkDto;
 import com.example.foscore.model.entity.Drink;
 import com.example.foscore.model.request.DrinkRequest;
 import com.example.foscore.repository.DrinkRepository;
+import com.stripe.model.Product;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -30,6 +32,9 @@ class DrinkServiceTest {
     @Mock
     private DrinkRepository drinkRepository;
 
+    @Mock
+    private StripeService stripeService;
+
     @InjectMocks
     private DrinkService drinkService;
 
@@ -41,7 +46,10 @@ class DrinkServiceTest {
         entity.setCreatedAt(LocalDateTime.now());
 
         Drink savedDrink = MockData.drink();
+        Product createdProduct = Mockito.mock(Product.class);
 
+        when(this.stripeService.createProduct(savedDrink.getName())).thenReturn(createdProduct);
+        when(createdProduct.getId()).thenReturn("product_id");
         when(this.drinkRepository.save(any(Drink.class))).thenReturn(savedDrink);
 
         DrinkDto result = this.drinkService.create(request);
