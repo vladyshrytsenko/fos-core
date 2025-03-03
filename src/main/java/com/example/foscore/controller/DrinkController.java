@@ -1,13 +1,12 @@
 package com.example.foscore.controller;
 
 import com.example.foscore.model.dto.DrinkDto;
-import com.example.foscore.model.entity.Drink;
 import com.example.foscore.model.request.DrinkRequest;
 import com.example.foscore.service.DrinkService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,11 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,21 +25,15 @@ public class DrinkController {
 
     @PostMapping
     public ResponseEntity<DrinkDto> create(
-        @RequestBody @Valid DrinkRequest request
-    ) {
+        @RequestBody @Valid DrinkRequest request) {
+
         DrinkDto created = this.drinkService.create(request);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<DrinkDto>> findAll(
-        @RequestParam Optional<Integer> number,
-        @RequestParam Optional<Integer> size) {
-
-        PageRequest pageable = PageRequest.of(number.orElse(0), size.orElse(10));
-        Page<Drink> page = this.drinkService.findAll(pageable);
-        List<DrinkDto> list = DrinkDto.toDtoList(page.getContent());
-        return new ResponseEntity<>(list, HttpStatus.OK);
+    public Page<DrinkDto> findAll(Pageable pageable) {
+        return this.drinkService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
@@ -56,8 +45,8 @@ public class DrinkController {
     @PutMapping("/{id}")
     public ResponseEntity<DrinkDto> updateById(
         @PathVariable Long id,
-        @RequestBody @Valid DrinkRequest request
-    ) {
+        @RequestBody @Valid DrinkRequest request) {
+
         DrinkDto updated = this.drinkService.updateById(id, request);
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }

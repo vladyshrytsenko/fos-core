@@ -6,7 +6,6 @@ import com.example.foscore.model.entity.Cuisine;
 import com.example.foscore.model.request.CuisineRequest;
 import com.example.foscore.repository.CuisineRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,16 +34,15 @@ public class CuisineService {
             .orElseThrow(() -> new EntityNotFoundException(Cuisine.class));
     }
 
-    public Page<Cuisine> findAll(Pageable pageable) {
-        return this.cuisineRepository.findAll(pageable);
+    public Page<CuisineDto> findAll(Pageable pageable) {
+        Page<Cuisine> cuisinePage = this.cuisineRepository.findAll(pageable);
+        return cuisinePage.map(CuisineDto::toDto);
     }
 
     public CuisineDto updateById(Long id, CuisineRequest cuisineExists) {
         CuisineDto cuisineById = this.getById(id);
 
-        if (StringUtils.isNotBlank(cuisineExists.getName())) {
-            cuisineById.setName(cuisineExists.getName());
-        }
+        cuisineById.setName(cuisineExists.getName());
 
         Cuisine cuisineToUpdate = toEntity(cuisineById);
         Cuisine updatedCuisine = cuisineRepository.save(cuisineToUpdate);

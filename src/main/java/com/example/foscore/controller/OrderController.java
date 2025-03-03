@@ -1,13 +1,11 @@
 package com.example.foscore.controller;
 
 import com.example.foscore.model.dto.OrderDto;
-import com.example.foscore.model.entity.Order;
 import com.example.foscore.model.request.OrderRequest;
 import com.example.foscore.service.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,11 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -33,9 +27,6 @@ public class OrderController {
     public ResponseEntity<OrderDto> create(
         @AuthenticationPrincipal Jwt jwt,
         @RequestBody OrderRequest request) {
-        if (jwt == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
         long userId = jwt.getClaim("user_id");
         OrderDto created = this.orderService.create(userId, request);
@@ -43,14 +34,8 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderDto>> findAll(
-        @RequestParam Optional<Integer> number,
-        @RequestParam Optional<Integer> size) {
-
-        PageRequest pageable = PageRequest.of(number.orElse(0), size.orElse(10));
-        Page<Order> page = this.orderService.findAll(pageable);
-        List<OrderDto> list = OrderDto.toDtoList(page.getContent());
-        return new ResponseEntity<>(list, HttpStatus.OK);
+    public Page<OrderDto> findAll(Pageable pageable) {
+        return this.orderService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
@@ -66,7 +51,4 @@ public class OrderController {
     }
 
     private final OrderService orderService;
-
-    @Value("${stripe.api.secret-key}")
-    private String stripeSecretKey;
 }

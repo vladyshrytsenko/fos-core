@@ -28,10 +28,6 @@ public class SubscriptionService {
 
     @Transactional
     public SubscriptionDto create(String email, String username, SubscriptionRequest request) {
-        if (request.getType() == null || request.getType().isEmpty()) {
-            throw new RuntimeException("Subscription type should not be blank");
-        }
-
         Subscription subscriptionToSave = SubscriptionRequest.toEntity(request);
 
         OrderDto orderById = this.orderService.getById(request.getOrderId());

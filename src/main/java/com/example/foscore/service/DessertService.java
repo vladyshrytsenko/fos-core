@@ -13,8 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-
 @Service
 @RequiredArgsConstructor
 public class DessertService {
@@ -49,23 +47,18 @@ public class DessertService {
             .orElseThrow(() -> new EntityNotFoundException(Dessert.class));
     }
 
-    public Page<Dessert> findAll(Pageable pageable) {
-        return this.dessertRepository.findAll(pageable);
+    public Page<DessertDto> findAll(Pageable pageable) {
+        Page<Dessert> dessertPage = this.dessertRepository.findAll(pageable);
+        return dessertPage.map(DessertDto::toDto);
     }
 
     public DessertDto updateById(Long id, DessertRequest dessertExists) {
         Dessert dessertById = this.dessertRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Dessert.class));
 
-        if (isNotBlank(dessertExists.getName())) {
-            dessertById.setName(dessertExists.getName());
-        }
-        if (dessertExists.getPortionWeight() != null) {
-            dessertById.setPortionWeight(dessertExists.getPortionWeight());
-        }
-        if (dessertExists.getPrice() != null) {
-            dessertById.setPrice(dessertExists.getPrice());
-        }
+        dessertById.setName(dessertExists.getName());
+        dessertById.setPortionWeight(dessertExists.getPortionWeight());
+        dessertById.setPrice(dessertExists.getPrice());
 
         Dessert updatedDessert = dessertRepository.save(dessertById);
         return DessertDto.toDto(updatedDessert);

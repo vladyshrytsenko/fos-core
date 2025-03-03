@@ -2,7 +2,7 @@ package com.example.foscore.model.request;
 
 import com.example.foscore.model.entity.Subscription;
 import com.example.foscore.model.enums.SubscriptionType;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class SubscriptionRequest {
 
-    @NotNull(message = "'type' should not be null")
+    @NotBlank(message = "'type' should not be blank")
     private String type;
 
     @Positive(message = "'userId' should be greater than 0")
