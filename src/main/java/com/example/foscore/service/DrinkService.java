@@ -8,7 +8,6 @@ import com.example.foscore.repository.DrinkRepository;
 import com.stripe.model.Price;
 import com.stripe.model.Product;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,20 +38,17 @@ public class DrinkService {
             .orElseThrow(() -> new EntityNotFoundException(Drink.class));
     }
 
-    public Page<Drink> findAll(Pageable pageable) {
-        return this.drinkRepository.findAll(pageable);
+    public Page<DrinkDto> findAll(Pageable pageable) {
+        Page<Drink> drinkPage = this.drinkRepository.findAll(pageable);
+        return drinkPage.map(DrinkDto::toDto);
     }
 
     public DrinkDto updateById(Long id, DrinkRequest drinkExists) {
         Drink drinkById = this.drinkRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(Drink.class));
 
-        if (StringUtils.isNotBlank(drinkExists.getName())) {
-            drinkById.setName(drinkExists.getName());
-        }
-        if (drinkExists.getPrice() != null) {
-            drinkById.setPrice(drinkExists.getPrice());
-        }
+        drinkById.setName(drinkExists.getName());
+        drinkById.setPrice(drinkExists.getPrice());
 
         Drink updatedDrink = drinkRepository.save(drinkById);
         return DrinkDto.toDto(updatedDrink);

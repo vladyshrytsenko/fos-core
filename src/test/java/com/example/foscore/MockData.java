@@ -1,5 +1,8 @@
 package com.example.foscore;
 
+import com.example.foscore.model.dto.DessertDto;
+import com.example.foscore.model.dto.DrinkDto;
+import com.example.foscore.model.dto.MealDto;
 import com.example.foscore.model.entity.Cuisine;
 import com.example.foscore.model.entity.Dessert;
 import com.example.foscore.model.entity.Drink;
@@ -15,6 +18,7 @@ import com.example.foscore.model.request.OrderRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public class MockData {
 
@@ -196,9 +200,9 @@ public class MockData {
 
     public static OrderRequest orderRequest() {
         return new OrderRequest() {{
-            setMealNames(List.of("meal_mock"));
-            setDessertNames(List.of("dessert_mock"));
-            setDrinkNames(List.of("drink_mock"));
+            setMeals(Set.of( MealDto.toDto(meal()) ));
+            setDesserts(Set.of(DessertDto.toDto(dessert()) ));
+            setDrinks(Set.of( DrinkDto.toDto(drink()) ));
             setIceCubes(true);
         }};
     }

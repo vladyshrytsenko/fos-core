@@ -1,6 +1,9 @@
 package com.example.foscore.config;
 
+import com.example.foscore.config.properties.CorsProperties;
+import com.example.foscore.config.properties.OAuthProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,6 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@EnableConfigurationProperties({OAuthProperties.class, CorsProperties.class})
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
@@ -59,7 +63,7 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri("http://localhost:9000/oauth2/jwks")
+        return NimbusJwtDecoder.withJwkSetUri(this.authProperties.getJwtSetUri())
             .jwsAlgorithm(SignatureAlgorithm.RS256)
             .build();
     }
@@ -77,11 +81,14 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:4200");
+        config.setAllowedOrigins(this.corsProperties.getAllowedOrigins());
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
+    private final OAuthProperties authProperties;
+    private final CorsProperties corsProperties;
 }

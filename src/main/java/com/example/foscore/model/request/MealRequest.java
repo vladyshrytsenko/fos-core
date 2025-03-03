@@ -1,6 +1,7 @@
 package com.example.foscore.model.request;
 
 import com.example.foscore.model.entity.Meal;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MealRequest {
 
+    @NotBlank(message = "'name' should not be null")
     @Size(min = 4, max = 32, message = "invalid 'name' size")
     private String name;
 

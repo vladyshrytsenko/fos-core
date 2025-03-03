@@ -23,9 +23,6 @@ public class SubscriptionController {
     public ResponseEntity<SubscriptionDto> create(
         @AuthenticationPrincipal Jwt jwt,
         @RequestBody @Valid SubscriptionRequest request) {
-        if (jwt == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
         String username = jwt.getSubject();
         String email = jwt.getClaim("email");

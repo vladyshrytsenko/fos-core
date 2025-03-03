@@ -1,6 +1,9 @@
 package com.example.foscore.service;
 
 import com.example.foscore.exception.EntityNotFoundException;
+import com.example.foscore.model.dto.DessertDto;
+import com.example.foscore.model.dto.DrinkDto;
+import com.example.foscore.model.dto.MealDto;
 import com.example.foscore.model.dto.OrderDto;
 import com.example.foscore.model.dto.PaymentDto;
 import com.example.foscore.model.entity.Dessert;
@@ -20,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -29,20 +33,14 @@ public class OrderService {
 
     @Transactional
     public OrderDto create(long userId, OrderRequest request) {
-        if (request.getMealNames().isEmpty() &&
-            request.getDessertNames().isEmpty() &&
-            request.getDrinkNames().isEmpty()) {
-            throw new RuntimeException("Lunch should not be blank");
-        }
-
         Order orderToSave = OrderRequest.toEntity(request);
         orderToSave.setCreatedBy(userId);
 
         AtomicReference<Float> totalPrice = new AtomicReference<>(0f);
 
-        List<Meal> meals = this.getMeals(request.getMealNames(), totalPrice);
-        List<Dessert> desserts = this.getDesserts(request.getDessertNames(), totalPrice);
-        List<Drink> drinks = this.getDrinks(request.getDrinkNames(), totalPrice);
+        List<Meal> meals = this.getMeals(request.getMeals(), totalPrice);
+        List<Dessert> desserts = this.getDesserts(request.getDesserts(), totalPrice);
+        List<Drink> drinks = this.getDrinks(request.getDrinks(), totalPrice);
 
         orderToSave.setMeals(meals);
         orderToSave.setDesserts(desserts);
@@ -66,8 +64,9 @@ public class OrderService {
         return OrderDto.toDto(orderById);
     }
 
-    public Page<Order> findAll(Pageable pageable) {
-        return this.orderRepository.findAll(pageable);
+    public Page<OrderDto> findAll(Pageable pageable) {
+        Page<Order> orderPage = this.orderRepository.findAll(pageable);
+        return orderPage.map(OrderDto::toDto);
     }
 
     public List<Order> getOrdersForCurrentMonth(Long createdBy) {
@@ -97,32 +96,32 @@ public class OrderService {
         this.orderRepository.deleteById(id);
     }
 
-    private List<Meal> getMeals(List<String> mealNames, AtomicReference<Float> totalPrice) {
-        return mealNames.stream()
-            .map(name -> {
-                Meal meal = this.mealService.getEntityByName(name);
-                this.popularDishesProducer.sendOrderEvent(DishType.MEAL, name);
+    private List<Meal> getMeals(Set<MealDto> meals, AtomicReference<Float> totalPrice) {
+        return meals.stream()
+            .map(mealDto -> {
+                Meal meal = this.mealService.getEntityByName(mealDto.getName());
+                this.popularDishesProducer.sendOrderEvent(DishType.MEAL, meal.getName());
                 totalPrice.updateAndGet(v -> v + meal.getPrice());
                 return meal;
             })
             .collect(Collectors.toList());
     }
 
-    private List<Dessert> getDesserts(List<String> dessertNames, AtomicReference<Float> totalPrice) {
-        return dessertNames.stream()
-            .map(name -> {
-                Dessert dessert = this.dessertService.getEntityByName(name);
-                this.popularDishesProducer.sendOrderEvent(DishType.DESSERT, name);
+    private List<Dessert> getDesserts(Set<DessertDto> desserts, AtomicReference<Float> totalPrice) {
+        return desserts.stream()
+            .map(dessertDto -> {
+                Dessert dessert = this.dessertService.getEntityByName(dessertDto.getName());
+                this.popularDishesProducer.sendOrderEvent(DishType.DESSERT, dessert.getName());
                 totalPrice.updateAndGet(v -> v + dessert.getPrice());
                 return dessert;
             })
             .collect(Collectors.toList());
     }
 
-    private List<Drink> getDrinks(List<String> drinkNames, AtomicReference<Float> totalPrice) {
-        return drinkNames.stream()
-            .map(name -> {
-                Drink drink = this.drinkService.getEntityByName(name);
+    private List<Drink> getDrinks(Set<DrinkDto> drinks, AtomicReference<Float> totalPrice) {
+        return drinks.stream()
+            .map(drinkDto -> {
+                Drink drink = this.drinkService.getEntityByName(drinkDto.getName());
                 totalPrice.updateAndGet(v -> v + drink.getPrice());
                 return drink;
             })

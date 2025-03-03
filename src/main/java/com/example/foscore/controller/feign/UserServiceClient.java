@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
-@FeignClient(name = "fos-auth", url = "http://localhost:9000")
+@FeignClient(name = "fos-auth", url = "${feign.auth-service-url}")
 public interface UserServiceClient {
 
     @GetMapping("/api/users")
