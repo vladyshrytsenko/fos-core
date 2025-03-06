@@ -35,7 +35,7 @@ public class DessertService {
         return DessertDto.toDto(dessertById);
     }
 
-    public DessertDto getByName(String name) {
+    public DessertDto getBy(String name) {
         Dessert dessertByName = this.dessertRepository.findByName(name)
             .orElseThrow(() -> new EntityNotFoundException(Dessert.class));
 

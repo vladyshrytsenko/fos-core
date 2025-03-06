@@ -39,7 +39,7 @@ public class MealService {
         return MealDto.toDto(mealById);
     }
 
-    public MealDto getByName(String name) {
+    public MealDto getBy(String name) {
         Meal mealByName = this.mealRepository.findByName(name)
             .orElseThrow(() -> new EntityNotFoundException(Meal.class));
 

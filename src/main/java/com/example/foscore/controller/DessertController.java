@@ -43,9 +43,9 @@ public class DessertController {
         return new ResponseEntity<>(found, HttpStatus.OK);
     }
 
-    @GetMapping("/searchBy")
-    public ResponseEntity<DessertDto> getByName(@RequestParam String name) {
-        DessertDto found = this.dessertService.getByName(name);
+    @GetMapping("/getBy")
+    public ResponseEntity<DessertDto> getBy(@RequestParam String name) {
+        DessertDto found = this.dessertService.getBy(name);
         return new ResponseEntity<>(found, HttpStatus.OK);
     }
 

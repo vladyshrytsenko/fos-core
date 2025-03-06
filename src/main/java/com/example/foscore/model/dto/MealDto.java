@@ -18,7 +18,7 @@ public class MealDto {
     private String name;
     private Float price;
     private Integer portionWeight;
-    private Long cuisineId;
+    private String cuisineName;
     private String stripeCustomerId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -38,7 +38,7 @@ public class MealDto {
             .build();
 
         if (entity.getCuisine() != null) {
-            mealDto.setCuisineId(entity.getCuisine().getId());
+            mealDto.setCuisineName(entity.getCuisine().getName());
         }
 
         return mealDto;

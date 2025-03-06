@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -39,6 +40,12 @@ public class DrinkController {
     @GetMapping("/{id}")
     public ResponseEntity<DrinkDto> getById(@PathVariable Long id) {
         DrinkDto found = this.drinkService.getById(id);
+        return new ResponseEntity<>(found, HttpStatus.OK);
+    }
+
+    @GetMapping("/getBy")
+    public ResponseEntity<DrinkDto> getBy(@RequestParam String name) {
+        DrinkDto found = this.drinkService.getBy(name);
         return new ResponseEntity<>(found, HttpStatus.OK);
     }
 

@@ -43,9 +43,9 @@ public class MealController {
         return new ResponseEntity<>(found, HttpStatus.OK);
     }
 
-    @GetMapping("/searchBy")
-    public ResponseEntity<MealDto> getByName(@RequestParam String name) {
-        MealDto found = this.mealService.getByName(name);
+    @GetMapping("/getBy")
+    public ResponseEntity<MealDto> getBy(@RequestParam String name) {
+        MealDto found = this.mealService.getBy(name);
         return new ResponseEntity<>(found, HttpStatus.OK);
     }
 

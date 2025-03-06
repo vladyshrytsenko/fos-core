@@ -2,7 +2,9 @@ package com.example.foscore.service;
 
 import com.example.foscore.exception.EntityNotFoundException;
 import com.example.foscore.model.dto.DrinkDto;
+import com.example.foscore.model.dto.MealDto;
 import com.example.foscore.model.entity.Drink;
+import com.example.foscore.model.entity.Meal;
 import com.example.foscore.model.request.DrinkRequest;
 import com.example.foscore.repository.DrinkRepository;
 import com.stripe.model.Price;
@@ -31,6 +33,13 @@ public class DrinkService {
             .orElseThrow(() -> new EntityNotFoundException(Drink.class));
 
         return DrinkDto.toDto(drinkById);
+    }
+
+    public DrinkDto getBy(String name) {
+        Drink drinkByName = this.drinkRepository.findByName(name)
+            .orElseThrow(() -> new EntityNotFoundException(Drink.class));
+
+        return DrinkDto.toDto(drinkByName);
     }
 
     public Drink getEntityByName(String name) {
