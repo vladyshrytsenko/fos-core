@@ -227,7 +227,14 @@ public class MockData {
             setDrinks(drinkList());
             setIceCubes(true);
             setCreatedAt(LocalDateTime.now());
+            setPayment(payment());
         }};
+
+        Payment payment2 = Payment.builder()
+            .id("2")
+            .totalPrice(10f)
+            .status(PaymentStatus.PAID)
+            .build();
 
         Order order2 = new Order() {{
             setId(2L);
@@ -236,6 +243,7 @@ public class MockData {
             setDrinks(drinkList());
             setIceCubes(false);
             setCreatedAt(LocalDateTime.now());
+            setPayment(payment2);
         }};
 
         return List.of(order1, order2);

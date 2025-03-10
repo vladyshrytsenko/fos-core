@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -32,6 +33,19 @@ public class FakeAuthorizationFilter extends OncePerRequestFilter {
     }
 
     static class FakeAuthentication implements Authentication {
+        private final Jwt jwt;
+
+        public FakeAuthentication() {
+            this.jwt = Jwt.withTokenValue("fake-token")
+                .claim("user_id", 1L)
+                .header("alg", "none")
+                .build();
+        }
+
+        @Override
+        public Object getPrincipal() {
+            return jwt;
+        }
 
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -39,33 +53,18 @@ public class FakeAuthorizationFilter extends OncePerRequestFilter {
         }
 
         @Override
-        public Object getCredentials() {
-            return null;
-        }
+        public Object getCredentials() { return null; }
 
         @Override
-        public Object getDetails() {
-            return null;
-        }
+        public Object getDetails() { return null; }
 
         @Override
-        public Object getPrincipal() {
-            return "fake-user";
-        }
+        public boolean isAuthenticated() { return true; }
 
         @Override
-        public boolean isAuthenticated() {
-            return true;
-        }
+        public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {}
 
         @Override
-        public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-
-        }
-
-        @Override
-        public String getName() {
-            return "fake-user";
-        }
+        public String getName() { return "fake-user"; }
     }
 }
