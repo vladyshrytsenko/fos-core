@@ -29,4 +29,3 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 }
-
