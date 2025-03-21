@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/drinks")
@@ -62,6 +64,12 @@ public class DrinkController {
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         this.drinkService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteAllByIds(@RequestBody List<Long> ids) {
+        this.drinkService.deleteAllById(ids);
+        return ResponseEntity.noContent().build();
     }
 
     private final DrinkService drinkService;

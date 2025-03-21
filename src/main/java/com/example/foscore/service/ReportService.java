@@ -57,7 +57,7 @@ public class ReportService {
         Paragraph preface = new Paragraph();
 
         preface.add(new Paragraph("Report: Food ordering system", catFont));
-        document.add(Chunk.NEWLINE);
+        preface.add(Chunk.NEWLINE);
         document.add(preface);
 
         PdfPTable table = this.createTable(users);
