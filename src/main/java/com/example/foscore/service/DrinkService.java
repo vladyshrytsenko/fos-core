@@ -2,9 +2,7 @@ package com.example.foscore.service;
 
 import com.example.foscore.exception.EntityNotFoundException;
 import com.example.foscore.model.dto.DrinkDto;
-import com.example.foscore.model.dto.MealDto;
 import com.example.foscore.model.entity.Drink;
-import com.example.foscore.model.entity.Meal;
 import com.example.foscore.model.request.DrinkRequest;
 import com.example.foscore.repository.DrinkRepository;
 import com.stripe.model.Price;
@@ -13,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -59,12 +59,16 @@ public class DrinkService {
         drinkById.setName(drinkExists.getName());
         drinkById.setPrice(drinkExists.getPrice());
 
-        Drink updatedDrink = drinkRepository.save(drinkById);
+        Drink updatedDrink = this.drinkRepository.save(drinkById);
         return DrinkDto.toDto(updatedDrink);
     }
 
     public void deleteById(Long id) {
         this.drinkRepository.deleteById(id);
+    }
+
+    public void deleteAllById(List<Long> ids) {
+        this.drinkRepository.deleteAllById(ids);
     }
 
     private final DrinkRepository drinkRepository;

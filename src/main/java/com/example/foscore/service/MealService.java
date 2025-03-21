@@ -14,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class MealService {
@@ -70,6 +72,10 @@ public class MealService {
 
     public void deleteById(Long id) {
         this.mealRepository.deleteById(id);
+    }
+
+    public void deleteAllById(List<Long> ids) {
+        this.mealRepository.deleteAllById(ids);
     }
 
     private final MealRepository mealRepository;

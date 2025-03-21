@@ -13,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class DessertService {
@@ -66,6 +68,10 @@ public class DessertService {
 
     public void deleteById(Long id) {
         this.dessertRepository.deleteById(id);
+    }
+
+    public void deleteAllById(List<Long> ids) {
+        this.dessertRepository.deleteAllById(ids);
     }
 
     private final DessertRepository dessertRepository;
