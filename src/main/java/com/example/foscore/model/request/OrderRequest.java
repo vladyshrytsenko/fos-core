@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -18,9 +19,9 @@ import java.util.Set;
 @Builder
 public class OrderRequest {
 
-    private Set<MealDto> meals;
-    private Set<DessertDto> desserts;
-    private Set<DrinkDto> drinks;
+    private Set<MealDto> meals = new HashSet<>();
+    private Set<DessertDto> desserts = new HashSet<>();
+    private Set<DrinkDto> drinks = new HashSet<>();
     private Boolean iceCubes;
     private Boolean lemon;
 
