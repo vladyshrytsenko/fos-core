@@ -1,6 +1,5 @@
 package com.example.foscore.service;
 
-import com.example.foscore.model.User;
 import com.example.foscore.model.dto.DessertDto;
 import com.example.foscore.model.dto.DrinkDto;
 import com.example.foscore.model.dto.MealDto;
